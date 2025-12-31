@@ -1,5 +1,4 @@
 import { motion } from 'framer-motion'
-import { mockStats } from '../../mock/issues'
 import { TrendingUp, CheckCircle, Clock, AlertCircle } from 'lucide-react'
 
 export default function DashboardStats({ issues }) {
@@ -13,7 +12,7 @@ export default function DashboardStats({ issues }) {
     },
     {
       label: 'Pending',
-      value: issues.filter((i) => i.status === 'pending').length,
+      value: issues.filter((i) => i.status !== 'resolved' && !i.resolved).length,
       icon: AlertCircle,
       color: 'yellow-500',
       change: null,
@@ -27,7 +26,7 @@ export default function DashboardStats({ issues }) {
     },
     {
       label: 'Resolved',
-      value: issues.filter((i) => i.status === 'resolved').length,
+      value: issues.filter((i) => i.status === 'resolved' || i.resolved === true).length,
       icon: CheckCircle,
       color: 'neon-green',
       change: '+8%',

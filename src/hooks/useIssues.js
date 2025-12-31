@@ -1,10 +1,8 @@
 import { useState, useEffect, useCallback } from 'react'
-import { mockIssues } from '../mock/issues'
 import { subscribeToIssues } from '../services/firebase'
 
 /**
- * Custom hook for fetching and managing issues
- * In production, this would connect to Firestore real-time updates
+ * Custom hook for fetching and managing issues from Firestore
  */
 export function useIssues() {
   const [issues, setIssues] = useState([])
@@ -12,28 +10,26 @@ export function useIssues() {
   const [error, setError] = useState(null)
 
   useEffect(() => {
-    // TODO: Firestore real-time listener
-    // const unsubscribe = subscribeToIssues((data) => {
-    //   setIssues(data)
-    //   setLoading(false)
-    // })
-    // return () => unsubscribe()
-
-    // Mock implementation
-    const timer = setTimeout(() => {
-      setIssues(mockIssues)
+    // Real Firestore listener
+    const unsubscribe = subscribeToIssues((data) => {
+      setIssues(data)
       setLoading(false)
-    }, 500)
+    }, (err) => {
+      setError(err.message)
+      setLoading(false)
+    })
 
-    return () => clearTimeout(timer)
+    return () => unsubscribe()
   }, [])
 
   const refetch = useCallback(() => {
     setLoading(true)
-    setTimeout(() => {
-      setIssues(mockIssues)
+    // Re-subscribe to get latest data
+    const unsubscribe = subscribeToIssues((data) => {
+      setIssues(data)
       setLoading(false)
-    }, 500)
+    })
+    return () => unsubscribe()
   }, [])
 
   return { issues, loading, error, refetch }

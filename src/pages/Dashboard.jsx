@@ -1,14 +1,33 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Map as MapIcon, List, Filter, Search, X } from 'lucide-react'
-import { mockIssues, issueTypes } from '../mock/issues'
 import MapView from '../components/dashboard/MapView'
 import IssueList from '../components/dashboard/IssueList'
 import IssueDetailModal from '../components/dashboard/IssueDetailModal'
 import DashboardStats from '../components/dashboard/DashboardStats'
 import { Button, CityImpactPanel } from '../components/ui'
+import { useCollection } from 'react-firebase-hooks/firestore'
+import { collection, query, orderBy } from 'firebase/firestore'
+import { db, auth } from '../firebase'
+import { useAuthState } from 'react-firebase-hooks/auth'
+import { isAdmin } from '../utils/userUtils'
+import { useNavigate } from 'react-router-dom'
+
+// Issue types for filtering
+const issueTypes = [
+  'pothole',
+  'broken-light',
+  'graffiti',
+  'flooding',
+  'tree',
+  'garbage',
+  'traffic-sign',
+  'other'
+]
 
 export default function Dashboard() {
+  const navigate = useNavigate()
+  const [user, authLoading] = useAuthState(auth)
   const [viewMode, setViewMode] = useState('map') // 'map' | 'list'
   const [selectedIssue, setSelectedIssue] = useState(null)
   const [filters, setFilters] = useState({
@@ -18,8 +37,37 @@ export default function Dashboard() {
   })
   const [showFilters, setShowFilters] = useState(false)
 
+  // Protect Route
+  useEffect(() => {
+    if (!authLoading && (!user || !isAdmin(user))) {
+      navigate('/');
+    }
+  }, [user, authLoading, navigate]);
+
+  // Fetch Real Data
+  const [value, loading, error] = useCollection(
+    query(collection(db, 'issues'), orderBy('createdAt', 'desc'))
+  );
+
+  const issues = useMemo(() => {
+    if (!value) return [];
+    return value.docs.map(doc => {
+      const data = doc.data();
+      return {
+        id: doc.id,
+        ...data,
+        type: data.manualLabel || 'other',
+        // Use AI analysis if available, otherwise use manual label
+        aiConfidence: data.aiAnalysis?.confidenceScore || 0,
+        aiVerified: data.aiAnalysis?.verified || false,
+        aiSummary: data.aiAnalysis?.summary || 'Analyzing...',
+        createdAt: data.createdAt?.toDate ? data.createdAt.toDate() : new Date(),
+      }
+    });
+  }, [value]);
+
   const filteredIssues = useMemo(() => {
-    return mockIssues.filter((issue) => {
+    return issues.filter((issue) => {
       // Status filter
       if (filters.status !== 'all' && issue.status !== filters.status) {
         return false
@@ -32,20 +80,22 @@ export default function Dashboard() {
       if (filters.search) {
         const searchLower = filters.search.toLowerCase()
         return (
-          issue.description.toLowerCase().includes(searchLower) ||
-          issue.location.address.toLowerCase().includes(searchLower)
+          issue.description?.toLowerCase().includes(searchLower) ||
+          issue.location?.address?.toLowerCase().includes(searchLower)
         )
       }
       return true
     })
-  }, [filters])
+  }, [filters, issues])
 
   const statusOptions = [
     { value: 'all', label: 'All Status' },
-    { value: 'pending', label: 'Pending' },
-    { value: 'in-progress', label: 'In Progress' },
+    { value: 'open', label: 'Open' },
+    { value: 'verified', label: 'Verified (AI)' },
+    { value: 'flagged', label: 'Flagged' },
     { value: 'resolved', label: 'Resolved' },
   ]
+
 
   return (
     <div className="min-h-screen pt-20">
@@ -56,7 +106,7 @@ export default function Dashboard() {
             <div>
               <h1 className="text-2xl font-bold text-white">City Issues Dashboard</h1>
               <p className="text-gray-400 text-sm">
-                {filteredIssues.length} issues found
+                {filteredIssues.length} issues found {filteredIssues.filter(i => i.aiVerified).length > 0 && `• ${filteredIssues.filter(i => i.aiVerified).length} AI-verified`}
               </p>
             </div>
 
@@ -95,21 +145,19 @@ export default function Dashboard() {
               <div className="flex items-center rounded-lg bg-dark-bg border border-dark-border p-1">
                 <button
                   onClick={() => setViewMode('map')}
-                  className={`p-2 rounded-md transition-colors ${
-                    viewMode === 'map'
-                      ? 'bg-neon-blue/20 text-neon-blue'
-                      : 'text-gray-400 hover:text-white'
-                  }`}
+                  className={`p-2 rounded-md transition-colors ${viewMode === 'map'
+                    ? 'bg-neon-blue/20 text-neon-blue'
+                    : 'text-gray-400 hover:text-white'
+                    }`}
                 >
                   <MapIcon className="w-4 h-4" />
                 </button>
                 <button
                   onClick={() => setViewMode('list')}
-                  className={`p-2 rounded-md transition-colors ${
-                    viewMode === 'list'
-                      ? 'bg-neon-blue/20 text-neon-blue'
-                      : 'text-gray-400 hover:text-white'
-                  }`}
+                  className={`p-2 rounded-md transition-colors ${viewMode === 'list'
+                    ? 'bg-neon-blue/20 text-neon-blue'
+                    : 'text-gray-400 hover:text-white'
+                    }`}
                 >
                   <List className="w-4 h-4" />
                 </button>
@@ -175,7 +223,7 @@ export default function Dashboard() {
       </div>
 
       {/* Stats */}
-      <DashboardStats issues={mockIssues} />
+      <DashboardStats issues={issues} />
 
       {/* City Impact Panel */}
       <div className="max-w-7xl mx-auto px-4 pt-6">

@@ -1,17 +1,32 @@
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { MapPin, Menu, X } from 'lucide-react'
+import { MapPin, Menu, X, LogOut, User } from 'lucide-react'
 import { useState } from 'react'
+import { useAuthState } from 'react-firebase-hooks/auth'
+import { auth } from '../../firebase'
+import { isAdmin } from '../../utils/userUtils'
+import NotificationCenter from '../notifications/NotificationCenter'
 
 export default function Navbar() {
   const location = useLocation()
+  const navigate = useNavigate()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [user, loading] = useAuthState(auth)
+
+  const handleLogout = () => {
+    auth.signOut()
+    navigate('/')
+  }
 
   const navLinks = [
     { path: '/', label: 'Home' },
     { path: '/report', label: 'Report Issue' },
-    { path: '/dashboard', label: 'Dashboard' },
   ]
+
+  if (user && isAdmin(user)) {
+    navLinks.push({ path: '/dashboard', label: 'Dashboard' })
+  }
+
 
   return (
     <motion.nav
@@ -41,11 +56,10 @@ export default function Navbar() {
               <Link
                 key={link.path}
                 to={link.path}
-                className={`relative px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                  location.pathname === link.path
-                    ? 'text-white'
-                    : 'text-gray-400 hover:text-white'
-                }`}
+                className={`relative px-4 py-2 rounded-lg text-sm font-medium transition-colors ${location.pathname === link.path
+                  ? 'text-white'
+                  : 'text-gray-400 hover:text-white'
+                  }`}
               >
                 {location.pathname === link.path && (
                   <motion.div
@@ -60,7 +74,31 @@ export default function Navbar() {
           </div>
 
           {/* CTA Button */}
-          <div className="hidden md:block">
+          <div className="hidden md:flex items-center gap-4">
+            {user ? (
+              <div className="flex items-center gap-4">
+                <NotificationCenter />
+                <div className="flex items-center gap-2 text-sm text-gray-300">
+                  <User className="w-4 h-4" />
+                  <span>{user.displayName || user.email}</span>
+                </div>
+                <button
+                  onClick={handleLogout}
+                  className="p-2 text-gray-400 hover:text-white transition-colors"
+                  title="Logout"
+                >
+                  <LogOut className="w-5 h-5" />
+                </button>
+              </div>
+            ) : (
+              <Link
+                to="/login"
+                className="px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-sm font-medium text-white transition-all"
+              >
+                Sign In
+              </Link>
+            )}
+
             <Link
               to="/report"
               className="px-4 py-2 bg-gradient-to-r from-neon-blue to-neon-purple rounded-lg text-sm font-semibold text-white hover:opacity-90 transition-opacity glow-blue"
@@ -93,11 +131,10 @@ export default function Navbar() {
                 key={link.path}
                 to={link.path}
                 onClick={() => setMobileMenuOpen(false)}
-                className={`block px-4 py-3 rounded-lg text-sm font-medium ${
-                  location.pathname === link.path
-                    ? 'bg-dark-border text-white'
-                    : 'text-gray-400 hover:text-white hover:bg-dark-border/50'
-                }`}
+                className={`block px-4 py-3 rounded-lg text-sm font-medium ${location.pathname === link.path
+                  ? 'bg-dark-border text-white'
+                  : 'text-gray-400 hover:text-white hover:bg-dark-border/50'
+                  }`}
               >
                 {link.label}
               </Link>

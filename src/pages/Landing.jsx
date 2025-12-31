@@ -1,55 +1,24 @@
 import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
-import { 
-  Camera, 
-  MapPin, 
-  Zap, 
-  Shield, 
-  Clock, 
+import {
+  Camera,
+  MapPin,
   ChevronRight,
   Sparkles,
-  Eye,
-  Brain,
-  Map as MapIcon
+  Eye
 } from 'lucide-react'
-import { Button, Card } from '../components/ui'
+import { Button } from '../components/ui'
 import AnimatedBackground from '../components/landing/AnimatedBackground'
 import GoogleSection from '../components/landing/GoogleSection'
 import StatsSection from '../components/landing/StatsSection'
 import HowItWorks from '../components/landing/HowItWorks'
+import Leaderboard from '../components/gamification/Leaderboard'
 
 export default function Landing() {
-  const features = [
-    {
-      icon: Camera,
-      title: 'Snap & Report',
-      description: 'Simply take a photo of any city issue - potholes, broken lights, graffiti, and more.',
-      color: 'neon-blue',
-    },
-    {
-      icon: Brain,
-      title: 'AI-Powered Analysis',
-      description: 'Google Vision AI automatically identifies the issue type and generates detailed descriptions.',
-      color: 'neon-purple',
-    },
-    {
-      icon: MapIcon,
-      title: 'Precise Location',
-      description: 'Automatic geolocation pins the exact spot for quick municipal response.',
-      color: 'neon-green',
-    },
-    {
-      icon: Clock,
-      title: 'Real-Time Tracking',
-      description: 'Track your report status from submission to resolution on our live dashboard.',
-      color: 'neon-orange',
-    },
-  ]
-
   return (
     <div className="relative min-h-screen overflow-hidden">
       <AnimatedBackground />
-      
+
       {/* Hero Section */}
       <section className="relative pt-32 pb-20 px-4">
         <div className="max-w-6xl mx-auto text-center">
@@ -71,30 +40,48 @@ export default function Landing() {
 
             {/* Main Headline */}
             <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
-              <span className="text-white">Report City Issues</span>
+              <span className="text-white">Report City Issues.</span>
               <br />
-              <span className="gradient-text">in Seconds</span>
+              <span className="gradient-text">AI Verifies Them.</span>
             </h1>
 
             {/* Subtext */}
-            <p className="text-xl md:text-2xl text-gray-400 max-w-3xl mx-auto mb-10">
-              AI-powered reporting using Google Vision, Gemini, and Maps.
+            <p className="text-lg md:text-xl text-gray-300 max-w-3xl mx-auto mb-10">
+              Snap a photo of any city issue. Google Vision detects what it is. 
               <br className="hidden md:block" />
-              Making cities smarter, one report at a time.
+              Gemini writes the official report. City officials take action instantly.
             </p>
 
             {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-6">
               <Link to="/report">
                 <Button size="xl" icon={Camera}>
-                  Report an Issue
+                  Report an Issue Now
                 </Button>
               </Link>
-              <Link to="/dashboard">
+              <Link to="/login">
                 <Button variant="secondary" size="xl" icon={Eye}>
-                  View Dashboard
+                  Sign In
                 </Button>
               </Link>
+            </div>
+
+            {/* Quick Stats */}
+            <div className="flex justify-center gap-8 text-sm">
+              <div className="text-center">
+                <div className="text-neon-blue font-bold text-xl">100%</div>
+                <div className="text-gray-400">AI Verified</div>
+              </div>
+              <div className="text-gray-600">•</div>
+              <div className="text-center">
+                <div className="text-neon-purple font-bold text-xl">Real-time</div>
+                <div className="text-gray-400">Processing</div>
+              </div>
+              <div className="text-gray-600">•</div>
+              <div className="text-center">
+                <div className="text-neon-green font-bold text-xl">Free</div>
+                <div className="text-gray-400">For Everyone</div>
+              </div>
             </div>
           </motion.div>
 
@@ -108,7 +95,7 @@ export default function Landing() {
             <div className="relative mx-auto max-w-4xl">
               {/* Glow effect */}
               <div className="absolute inset-0 bg-gradient-to-r from-neon-blue/20 via-neon-purple/20 to-neon-pink/20 blur-3xl" />
-              
+
               {/* Mock app preview */}
               <div className="relative glass rounded-3xl p-2 overflow-hidden">
                 <div className="bg-dark-bg rounded-2xl overflow-hidden">
@@ -118,7 +105,7 @@ export default function Landing() {
                     <div className="w-3 h-3 rounded-full bg-yellow-500" />
                     <div className="w-3 h-3 rounded-full bg-green-500" />
                   </div>
-                  
+
                   {/* Mock content */}
                   <div className="p-8 grid md:grid-cols-2 gap-6">
                     <div className="space-y-4">
@@ -149,42 +136,23 @@ export default function Landing() {
       {/* Stats Section */}
       <StatsSection />
 
-      {/* Features Grid */}
-      <section className="py-20 px-4">
-        <div className="max-w-6xl mx-auto">
+      {/* Community Leaderboard */}
+      <section className="py-20 px-4 bg-dark-card/30">
+        <div className="max-w-4xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-center mb-16"
+            className="text-center mb-12"
           >
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-              Smart Reporting Made Simple
+              Community Champions
             </h2>
-            <p className="text-gray-400 text-lg max-w-2xl mx-auto">
-              Our AI-powered system handles everything from image analysis to location detection
+            <p className="text-gray-400 text-lg">
+              Earn points, unlock badges, and become a guardian of your city.
             </p>
           </motion.div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {features.map((feature, index) => (
-              <motion.div
-                key={feature.title}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.1 }}
-              >
-                <Card className="h-full" glow glowColor={feature.color.replace('neon-', '')}>
-                  <div className={`w-12 h-12 rounded-xl bg-${feature.color}/20 flex items-center justify-center mb-4`}>
-                    <feature.icon className={`w-6 h-6 text-${feature.color}`} />
-                  </div>
-                  <h3 className="text-lg font-semibold text-white mb-2">{feature.title}</h3>
-                  <p className="text-gray-400 text-sm">{feature.description}</p>
-                </Card>
-              </motion.div>
-            ))}
-          </div>
+          <Leaderboard />
         </div>
       </section>
 
@@ -205,19 +173,29 @@ export default function Landing() {
           >
             {/* Glow */}
             <div className="absolute inset-0 bg-gradient-to-r from-neon-blue/30 via-neon-purple/30 to-neon-pink/30 blur-3xl" />
-            
+
             <div className="relative glass rounded-3xl p-12 text-center">
               <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-                Ready to Make Your City Smarter?
+                Help Your City Today
               </h2>
-              <p className="text-gray-400 text-lg mb-8 max-w-2xl mx-auto">
-                Join thousands of citizens who are already making a difference in their communities.
+              <p className="text-gray-400 text-lg mb-4 max-w-2xl mx-auto">
+                Every report matters. When you submit, AI instantly verifies it and routes it to the right department.
               </p>
-              <Link to="/report">
-                <Button size="xl" icon={ChevronRight} iconPosition="right">
-                  Start Reporting Now
-                </Button>
-              </Link>
+              <p className="text-gray-500 text-sm mb-8 max-w-2xl mx-auto">
+                Powered by <strong>Google Cloud Vision API</strong>, <strong>Gemini AI</strong>, and <strong>Firebase</strong>
+              </p>
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                <Link to="/report">
+                  <Button size="xl" icon={ChevronRight} iconPosition="right">
+                    Start Reporting
+                  </Button>
+                </Link>
+                <Link to="/login">
+                  <Button variant="secondary" size="xl">
+                    Sign In
+                  </Button>
+                </Link>
+              </div>
             </div>
           </motion.div>
         </div>
@@ -233,7 +211,7 @@ export default function Landing() {
             <span className="font-semibold text-white">SmartCity Reporter</span>
           </div>
           <p className="text-gray-500 text-sm">
-            Built for Hackathon 2024 • Powered by Google Technologies
+            Built for people • Powered by Google Technologies
           </p>
         </div>
       </footer>

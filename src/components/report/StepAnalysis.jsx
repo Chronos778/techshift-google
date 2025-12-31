@@ -28,18 +28,28 @@ export default function StepAnalysis({ reportData, updateReportData, onNext, onB
 
     const runAnalysis = async () => {
       try {
+        // Only analyze if we have a real image URL from Firebase
+        if (!reportData.imageUrl) {
+          console.warn('No image URL available, skipping analysis')
+          setIsAnalyzing(false)
+          return
+        }
+
         // Stage 1: Processing
         setCurrentStage(0)
         await new Promise((resolve) => setTimeout(resolve, 1000))
 
-        // Stage 2: Vision API
-        // TODO: Call Cloud Function (Vision + Gemini)
+        // Stage 2: Vision API - use the real image URL
         setCurrentStage(1)
-        const visionResult = await analyzeImage(reportData.imagePreview)
+        console.log('Analyzing image with Vision API:', reportData.imageUrl)
+        const visionResult = await analyzeImage(reportData.imageUrl)
+        console.log('Vision result:', visionResult)
 
-        // Stage 3: Gemini
+        // Stage 3: Gemini - use the real image URL
         setCurrentStage(2)
-        const geminiResult = await generateDescription(reportData.imagePreview, visionResult)
+        console.log('Generating description with Gemini')
+        const geminiResult = await generateDescription(reportData.imageUrl, visionResult)
+        console.log('Gemini result:', geminiResult)
 
         // Stage 4: Complete
         setCurrentStage(3)
@@ -62,7 +72,7 @@ export default function StepAnalysis({ reportData, updateReportData, onNext, onB
     }
 
     runAnalysis()
-  }, [reportData.imagePreview, reportData.analysisResult, updateReportData])
+  }, [reportData.imageUrl, reportData.analysisResult, updateReportData])
 
   const handleDescriptionSave = () => {
     updateReportData({ description: editedDescription })
@@ -85,7 +95,7 @@ export default function StepAnalysis({ reportData, updateReportData, onNext, onB
               className="w-full h-full object-cover"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-dark-bg/80 to-transparent" />
-            
+
             {/* Scanning animation */}
             <motion.div
               animate={{ y: ['0%', '100%', '0%'] }}
@@ -95,7 +105,7 @@ export default function StepAnalysis({ reportData, updateReportData, onNext, onB
           </div>
 
           {/* Progress stages */}
-          <div className="space-y-4 w-full max-w-sm">
+          <div className="space-y-4 w-full max-w-sm mb-8">
             {analysisStages.map((stage, index) => {
               const Icon = stage.icon
               const isComplete = index < currentStage
@@ -146,6 +156,10 @@ export default function StepAnalysis({ reportData, updateReportData, onNext, onB
               )
             })}
           </div>
+
+          <p className="text-center text-gray-400 text-sm">
+            Using Google Cloud Vision API to detect objects and Gemini AI to generate smart descriptions
+          </p>
         </div>
       </Card>
     )
@@ -159,7 +173,7 @@ export default function StepAnalysis({ reportData, updateReportData, onNext, onB
         analysisResult={{
           issueType: issueTypes.find(t => t.id === reportData.issueType) || issueTypes[0],
           confidence: reportData.analysisResult?.vision?.confidence || 0.85,
-          aiReasoning: `Detected ${reportData.analysisResult?.vision?.labels?.slice(0, 3).map(l => l.description).join(', ') || 'infrastructure damage'}. Analysis suggests this is a ${reportData.issueType || 'infrastructure'} issue requiring municipal attention.`,
+          reasoning: `Detected ${reportData.analysisResult?.vision?.labels?.slice(0, 3).map(l => l.description).join(', ') || 'infrastructure damage'}. Analysis suggests this is a ${reportData.issueType || 'infrastructure'} issue requiring municipal attention.`,
           generatedDescription: reportData.description,
         }}
         onDescriptionChange={(newDesc) => updateReportData({ description: newDesc })}

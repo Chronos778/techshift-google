@@ -2,33 +2,40 @@ import { motion } from 'framer-motion'
 import { Camera, Brain, MapPin, Send } from 'lucide-react'
 
 export default function HowItWorks() {
+  const colorMap = {
+    'neon-blue': '#00D9FF',
+    'neon-purple': '#B026FF',
+    'neon-green': '#00FF41',
+    'neon-orange': '#FFB700',
+  }
+
   const steps = [
     {
       number: '01',
       icon: Camera,
       title: 'Capture the Issue',
-      description: 'Take a photo or upload an image of any city infrastructure problem you encounter.',
+      description: 'Take a photo or upload an image of any city problem - pothole, graffiti, broken light, etc.',
       color: 'neon-blue',
     },
     {
       number: '02',
       icon: Brain,
-      title: 'AI Analyzes',
-      description: 'Google Vision AI identifies the issue type while Gemini generates a detailed description.',
+      title: 'AI Verifies',
+      description: 'Google Vision API detects objects. Gemini AI writes an official-quality description automatically.',
       color: 'neon-purple',
     },
     {
       number: '03',
       icon: MapPin,
-      title: 'Location Detected',
-      description: 'Your GPS coordinates are captured and reverse-geocoded for precise location.',
+      title: 'Location Pinned',
+      description: 'Automatic geolocation or manual pin marks the exact spot for city crews to find it.',
       color: 'neon-green',
     },
     {
       number: '04',
       icon: Send,
-      title: 'Report Submitted',
-      description: 'Your report is sent to the appropriate city department for quick resolution.',
+      title: 'Report Routed',
+      description: 'Verified report reaches the right city department. Track it from submission to resolution.',
       color: 'neon-orange',
     },
   ]
@@ -65,14 +72,22 @@ export default function HowItWorks() {
                 className="relative"
               >
                 <div className="glass rounded-2xl p-6 h-full relative z-10">
-                  {/* Step number */}
-                  <div className={`absolute -top-3 -right-3 w-10 h-10 rounded-full bg-${step.color} flex items-center justify-center text-sm font-bold text-dark-bg`}>
-                    {step.number}
+                  {/* Step number - positioned to ensure visibility */}
+                  <div className="flex items-start justify-between mb-4">
+                    <div 
+                      className="w-12 h-12 rounded-full flex items-center justify-center text-sm font-bold text-dark-bg flex-shrink-0"
+                      style={{ backgroundColor: colorMap[step.color] }}
+                    >
+                      {step.number}
+                    </div>
                   </div>
                   
                   {/* Icon */}
-                  <div className={`w-14 h-14 rounded-xl bg-${step.color}/20 flex items-center justify-center mb-4`}>
-                    <step.icon className={`w-7 h-7 text-${step.color}`} />
+                  <div 
+                    className="w-14 h-14 rounded-xl flex items-center justify-center mb-4"
+                    style={{ backgroundColor: `${colorMap[step.color]}20` }}
+                  >
+                    <step.icon className="w-7 h-7" style={{ color: colorMap[step.color] }} />
                   </div>
                   
                   <h3 className="text-lg font-semibold text-white mb-2">

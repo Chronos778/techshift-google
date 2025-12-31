@@ -1,193 +1,224 @@
-import { useState } from 'react'
-import { motion } from 'framer-motion'
-import { MapPin } from 'lucide-react'
+import React, { useState, useMemo, useEffect } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { MapPin, Layers } from 'lucide-react'
 import { Card, StatusBadge, IssueTypeTag } from '../ui'
+import { GoogleMap, useJsApiLoader, MarkerF, InfoWindowF, HeatmapLayerF } from '@react-google-maps/api'
+import { darkMapStyles } from '../../services/maps'
+
+const containerStyle = {
+  width: '100%',
+  height: '600px'
+};
+
+const center = {
+  lat: 37.7749, // Default San Francisco
+  lng: -122.4194
+};
+
+const libraries = ['visualization'];
 
 const statusColors = {
   pending: '#EAB308',
+  open: '#EAB308',
   'in-progress': '#3B82F6',
+  verified: '#3B82F6',
+  flagged: '#EF4444',
   resolved: '#22C55E',
 }
 
 export default function MapView({ issues, onSelectIssue }) {
   const [hoveredIssue, setHoveredIssue] = useState(null)
+  const [selectedMarker, setSelectedMarker] = useState(null)
+  const [showHeatmap, setShowHeatmap] = useState(false)
+
+  const { isLoaded, loadError } = useJsApiLoader({
+    id: 'google-map-script',
+    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
+    libraries: libraries
+  })
+
+  const [map, setMap] = useState(null)
+
+  useEffect(() => {
+    // Log API key status for debugging
+    const apiKeySet = !!import.meta.env.VITE_GOOGLE_MAPS_API_KEY
+    console.log('Maps API Key Set:', apiKeySet)
+    console.log('Current URL:', window.location.href)
+    if (loadError) {
+      console.error('Maps API Load Error:', loadError)
+    }
+  }, [loadError])
+
+  const onLoad = React.useCallback(function callback(map) {
+    setMap(map)
+  }, [])
+
+  const onUnmount = React.useCallback(function callback(map) {
+    setMap(null)
+  }, [])
+
+  const heatmapData = useMemo(() => {
+    return issues
+      .filter(issue => issue.location?.lat && issue.location?.lng)
+      .map(issue => new window.google.maps.LatLng(issue.location.lat, issue.location.lng))
+  }, [issues, isLoaded])
+
+  // If API load error, show helpful message
+  if (loadError) {
+    return (
+      <div className="grid lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2">
+          <Card hover={false} padding={false} className="overflow-hidden flex items-center justify-center h-[600px] bg-dark-card">
+            <div className="text-center p-6 max-w-md">
+              <h3 className="text-xl font-bold text-white mb-4">Map Temporarily Unavailable</h3>
+              <p className="text-gray-400 mb-4">
+                The Google Maps API is initializing. This can take 30-60 seconds when the API key referrer restrictions are being updated.
+              </p>
+              <div className="bg-dark-border/50 rounded-lg p-3 mb-4 text-left">
+                <p className="text-gray-300 text-sm mb-2"><strong>What you can still do:</strong></p>
+                <ul className="text-gray-400 text-sm space-y-1">
+                  <li>• View all issues in the list on the right</li>
+                  <li>• Click any issue to see details</li>
+                  <li>• Map will work after refresh if key is ready</li>
+                </ul>
+              </div>
+              <button
+                onClick={() => window.location.reload()}
+                className="px-4 py-2 bg-neon-blue text-dark-bg rounded-lg font-semibold hover:opacity-90 transition"
+              >
+                Try Refreshing
+              </button>
+            </div>
+          </Card>
+        </div>
+        <SidePanel issues={issues} onSelectIssue={onSelectIssue} />
+      </div>
+    )
+  }
+
+  if (!isLoaded) {
+    return (
+      <div className="grid lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2">
+          <Card hover={false} padding={false} className="overflow-hidden flex items-center justify-center h-[600px] bg-dark-card">
+            <div className="text-center p-6">
+              <h3 className="text-xl font-bold text-white mb-2">Map Loading...</h3>
+              <p className="text-gray-400">If this persists, check your Google Maps API Key.</p>
+            </div>
+          </Card>
+        </div>
+        <SidePanel issues={issues} onSelectIssue={onSelectIssue} />
+      </div>
+    )
+  }
 
   return (
     <div className="grid lg:grid-cols-3 gap-6">
-      {/* Map area */}
       <div className="lg:col-span-2">
-        <Card hover={false} padding={false} className="overflow-hidden">
-          {/* TODO: Firestore real-time listener */}
-          {/* TODO: Google Maps JS API */}
-          <div className="relative h-[600px]">
-            {/* Mock dark map background */}
-            <div 
-              className="absolute inset-0"
-              style={{
-                background: `
-                  linear-gradient(rgba(0,212,255,0.02) 1px, transparent 1px),
-                  linear-gradient(90deg, rgba(0,212,255,0.02) 1px, transparent 1px),
-                  radial-gradient(ellipse at center, #1a1a2e 0%, #0a0a0f 100%)
-                `,
-                backgroundSize: '40px 40px, 40px 40px, 100% 100%',
-              }}
-            />
+        <Card hover={false} padding={false} className="overflow-hidden h-[600px] relative">
+          <GoogleMap
+            mapContainerStyle={containerStyle}
+            center={issues[0]?.location?.lat ? { lat: issues[0].location.lat, lng: issues[0].location.lng } : center}
+            zoom={13}
+            onLoad={onLoad}
+            onUnmount={onUnmount}
+            options={{
+              styles: darkMapStyles,
+              disableDefaultUI: false,
+              zoomControl: true,
+            }}
+          >
+            {showHeatmap && heatmapData.length > 0 && (
+              <HeatmapLayerF
+                data={heatmapData}
+                options={{
+                  radius: 30,
+                  opacity: 0.6,
+                }}
+              />
+            )}
 
-            {/* Mock city features */}
-            <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
-              {/* Roads */}
-              <path d="M0 30 L100 30" stroke="rgba(255,255,255,0.05)" strokeWidth="2" />
-              <path d="M0 60 L100 60" stroke="rgba(255,255,255,0.05)" strokeWidth="3" />
-              <path d="M25 0 L25 100" stroke="rgba(255,255,255,0.05)" strokeWidth="2" />
-              <path d="M50 0 L50 100" stroke="rgba(255,255,255,0.05)" strokeWidth="3" />
-              <path d="M75 0 L75 100" stroke="rgba(255,255,255,0.05)" strokeWidth="2" />
-              
-              {/* Water feature */}
-              <ellipse cx="80" cy="80" rx="15" ry="10" fill="rgba(14,165,233,0.1)" />
-            </svg>
-
-            {/* Issue pins */}
-            {issues.map((issue, index) => {
-              // Distribute pins across the map
-              const x = 15 + (index % 4) * 22 + Math.random() * 10
-              const y = 15 + Math.floor(index / 4) * 25 + Math.random() * 10
-
-              return (
-                <motion.button
+            {!showHeatmap && issues.map(issue => (
+              issue.location?.lat && (
+                <MarkerF
                   key={issue.id}
-                  initial={{ scale: 0, y: -20 }}
-                  animate={{ scale: 1, y: 0 }}
-                  transition={{ delay: index * 0.05 }}
-                  onClick={() => onSelectIssue(issue)}
-                  onMouseEnter={() => setHoveredIssue(issue.id)}
-                  onMouseLeave={() => setHoveredIssue(null)}
-                  className="absolute group"
-                  style={{
-                    left: `${x}%`,
-                    top: `${y}%`,
-                    transform: 'translate(-50%, -100%)',
+                  position={{ lat: issue.location.lat, lng: issue.location.lng }}
+                  onClick={() => {
+                    setSelectedMarker(issue);
+                    onSelectIssue(issue);
                   }}
                 >
-                  {/* Pin */}
-                  <div className="relative">
-                    <div
-                      className="w-8 h-8 rounded-full flex items-center justify-center shadow-lg transition-transform group-hover:scale-110"
-                      style={{
-                        backgroundColor: statusColors[issue.status],
-                        boxShadow: `0 0 20px ${statusColors[issue.status]}50`,
-                      }}
+                  {selectedMarker?.id === issue.id && (
+                    <InfoWindowF
+                      position={{ lat: issue.location.lat, lng: issue.location.lng }}
+                      onCloseClick={() => setSelectedMarker(null)}
                     >
-                      <MapPin className="w-4 h-4 text-white" />
-                    </div>
-                    <div
-                      className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 rotate-45"
-                      style={{ backgroundColor: statusColors[issue.status] }}
-                    />
-                    
-                    {/* Pulse animation */}
-                    {issue.status === 'pending' && (
-                      <motion.div
-                        animate={{ scale: [1, 1.5, 1], opacity: [0.5, 0, 0.5] }}
-                        transition={{ duration: 2, repeat: Infinity }}
-                        className="absolute inset-0 rounded-full"
-                        style={{ backgroundColor: statusColors[issue.status] }}
-                      />
-                    )}
-                  </div>
-
-                  {/* Tooltip */}
-                  {hoveredIssue === issue.id && (
-                    <motion.div
-                      initial={{ opacity: 0, y: 5 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 w-48 p-3 rounded-lg glass-strong shadow-xl z-10"
-                    >
-                      <IssueTypeTag type={issue.type} size="sm" />
-                      <p className="text-white text-xs mt-2 line-clamp-2">
-                        {issue.description}
-                      </p>
-                      <div className="mt-2 pt-2 border-t border-dark-border flex items-center justify-between">
-                        <StatusBadge status={issue.status} size="sm" />
+                      <div className="bg-white text-black p-2 rounded">
+                        <h4 className="font-bold">{issue.type}</h4>
+                        <p className="text-sm">{issue.description?.substring(0, 50)}...</p>
                       </div>
-                    </motion.div>
+                    </InfoWindowF>
                   )}
-                </motion.button>
+                </MarkerF>
               )
-            })}
+            ))}
+          </GoogleMap>
 
-            {/* Map legend */}
-            <div className="absolute bottom-4 left-4 glass rounded-lg p-3">
-              <p className="text-xs text-gray-400 mb-2">Status</p>
-              <div className="space-y-1">
-                {Object.entries(statusColors).map(([status, color]) => (
-                  <div key={status} className="flex items-center gap-2">
-                    <div
-                      className="w-3 h-3 rounded-full"
-                      style={{ backgroundColor: color }}
-                    />
-                    <span className="text-xs text-gray-300 capitalize">
-                      {status.replace('-', ' ')}
+          {/* Map Controls */}
+          <div className="absolute top-4 left-4 flex gap-2">
+            <button
+              onClick={() => setShowHeatmap(!showHeatmap)}
+              className={`flex items-center gap-2 px-3 py-2 rounded-lg backdrop-blur-md transition-colors ${showHeatmap ? 'bg-neon-blue text-white' : 'bg-black/50 text-gray-300 hover:bg-black/70'
+                }`}
+            >
+              <Layers className="w-4 h-4" />
+              <span className="text-sm font-medium">Heatmap</span>
+            </button>
+          </div>
+        </Card>
+      </div>
+
+      <SidePanel issues={issues} onSelectIssue={onSelectIssue} />
+    </div>
+  )
+}
+
+function SidePanel({ issues, onSelectIssue }) {
+  return (
+    <div className="lg:col-span-1">
+      <Card hover={false} className="h-[600px] overflow-hidden flex flex-col">
+        <h3 className="text-lg font-semibold text-white mb-4">Recent Issues</h3>
+        <div className="flex-1 overflow-y-auto space-y-3 pr-2 -mr-2">
+          {issues.slice(0, 10).map((issue) => (
+            <motion.button
+              key={issue.id}
+              onClick={() => onSelectIssue(issue)}
+              whileHover={{ scale: 1.02 }}
+              className="w-full text-left p-3 rounded-xl bg-dark-card border border-dark-border hover:border-neon-blue/30 transition-colors"
+            >
+              <div className="flex items-start gap-3">
+                <img
+                  src={issue.imageUrl || 'https://via.placeholder.com/150'}
+                  alt=""
+                  className="w-12 h-12 rounded-lg object-cover"
+                />
+                <div className="flex-1 min-w-0">
+                  <IssueTypeTag type={issue.type} size="sm" />
+                  <p className="text-white text-sm mt-1 line-clamp-1">
+                    {issue.location?.address || 'Unknown Location'}
+                  </p>
+                  <div className="flex items-center justify-between mt-2">
+                    <StatusBadge status={issue.status} size="sm" />
+                    <span className="text-xs text-gray-500">
+                      {new Date(issue.createdAt).toLocaleDateString()}
                     </span>
                   </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Map controls mock */}
-            <div className="absolute top-4 right-4 flex flex-col gap-2">
-              <button className="w-8 h-8 rounded-lg glass flex items-center justify-center text-white hover:bg-dark-border transition-colors">
-                +
-              </button>
-              <button className="w-8 h-8 rounded-lg glass flex items-center justify-center text-white hover:bg-dark-border transition-colors">
-                −
-              </button>
-            </div>
-
-            {/* Attribution */}
-            <div className="absolute bottom-4 right-4 text-xs text-gray-600">
-              © Google Maps
-            </div>
-          </div>
-        </Card>
-      </div>
-
-      {/* Side panel - Recent issues */}
-      <div className="lg:col-span-1">
-        <Card hover={false} className="h-[600px] overflow-hidden flex flex-col">
-          <h3 className="text-lg font-semibold text-white mb-4">Recent Issues</h3>
-          
-          <div className="flex-1 overflow-y-auto space-y-3 pr-2 -mr-2">
-            {issues.slice(0, 10).map((issue) => (
-              <motion.button
-                key={issue.id}
-                onClick={() => onSelectIssue(issue)}
-                whileHover={{ scale: 1.02 }}
-                className="w-full text-left p-3 rounded-xl bg-dark-card border border-dark-border hover:border-neon-blue/30 transition-colors"
-              >
-                <div className="flex items-start gap-3">
-                  <img
-                    src={issue.imageUrl}
-                    alt=""
-                    className="w-12 h-12 rounded-lg object-cover"
-                  />
-                  <div className="flex-1 min-w-0">
-                    <IssueTypeTag type={issue.type} size="sm" />
-                    <p className="text-white text-sm mt-1 line-clamp-1">
-                      {issue.location.address}
-                    </p>
-                    <div className="flex items-center justify-between mt-2">
-                      <StatusBadge status={issue.status} size="sm" />
-                      <span className="text-xs text-gray-500">
-                        {new Date(issue.createdAt).toLocaleDateString()}
-                      </span>
-                    </div>
-                  </div>
                 </div>
-              </motion.button>
-            ))}
-          </div>
-        </Card>
-      </div>
+              </div>
+            </motion.button>
+          ))}
+        </div>
+      </Card>
     </div>
   )
 }

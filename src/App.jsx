@@ -4,6 +4,7 @@ import Navbar from './components/layout/Navbar'
 import Landing from './pages/Landing'
 import ReportIssue from './pages/ReportIssue'
 import Dashboard from './pages/Dashboard'
+import Login from './pages/Login'
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
           <Route path="/" element={<Landing />} />
           <Route path="/report" element={<ReportIssue />} />
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/login" element={<Login />} />
         </Routes>
       </AnimatePresence>
     </div>

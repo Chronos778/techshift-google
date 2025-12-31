@@ -23,7 +23,12 @@ export default function StepLocation({ reportData, updateReportData, onNext, onB
       setManualAddress(location.address)
     } catch (error) {
       console.error('Location error:', error)
-      alert('Unable to detect location. Please enter manually.')
+      let msg = 'Unable to detect location.'
+      if (error.code === 1) msg = 'Location permission denied. Please enable it in your browser settings.'
+      else if (error.code === 2) msg = 'Location unavailable. Please check your network or try manually entering address.'
+      else if (error.code === 3) msg = 'Location request timed out. Please try again.'
+
+      alert(msg)
     } finally {
       setIsDetecting(false)
     }
@@ -46,7 +51,7 @@ export default function StepLocation({ reportData, updateReportData, onNext, onB
           Pin the Location
         </h2>
         <p className="text-gray-400 mb-6">
-          Help us find the exact location of the issue
+          Help city officials locate this issue. We'll use your location and map it on the city dashboard.
         </p>
 
         {/* Location detection button */}
@@ -66,7 +71,7 @@ export default function StepLocation({ reportData, updateReportData, onNext, onB
           {/* TODO: Google Maps JS API + Geolocation */}
           <div className="h-64 relative">
             {/* Mock map background with grid */}
-            <div 
+            <div
               className="absolute inset-0"
               style={{
                 background: `
@@ -77,12 +82,12 @@ export default function StepLocation({ reportData, updateReportData, onNext, onB
                 backgroundSize: '30px 30px, 30px 30px, 100% 100%',
               }}
             />
-            
+
             {/* Mock roads */}
             <div className="absolute top-1/2 left-0 right-0 h-2 bg-gray-700/50" />
             <div className="absolute top-0 bottom-0 left-1/3 w-2 bg-gray-700/50" />
             <div className="absolute top-0 bottom-0 right-1/4 w-1 bg-gray-700/30" />
-            
+
             {/* Location pin */}
             {reportData.location && (
               <motion.div
@@ -136,7 +141,7 @@ export default function StepLocation({ reportData, updateReportData, onNext, onB
               className="w-full pl-12 pr-4 py-3 rounded-xl bg-dark-card border border-dark-border focus:border-neon-blue/50 focus:outline-none text-white placeholder-gray-600"
             />
           </div>
-          {reportData.location && (
+          {reportData.location && reportData.location.lat && reportData.location.lng && (
             <motion.p
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}

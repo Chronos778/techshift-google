@@ -1,6 +1,10 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore'
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage'
+import { db, storage, auth } from '../firebase'
+import { useAuthState } from 'react-firebase-hooks/auth'
 import StepUpload from '../components/report/StepUpload'
 import StepAnalysis from '../components/report/StepAnalysis'
 import StepLocation from '../components/report/StepLocation'
@@ -35,13 +39,48 @@ export default function ReportIssue() {
     }
   }
 
+  const [user] = useAuthState(auth)
+  const [submitting, setSubmitting] = useState(false)
+
   const handleSubmit = async () => {
-    // TODO: Upload image to Firebase Storage
-    // TODO: Save issue to Firestore
-    console.log('[Report] Would submit report:', reportData)
-    
-    // Navigate to dashboard after "submission"
-    navigate('/dashboard')
+    if (!reportData.imageUrl || !validationCheck(reportData)) return;
+
+    setSubmitting(true);
+    try {
+      // Image is already uploaded, create Firestore document
+      await addDoc(collection(db, 'issues'), {
+        imageUrl: reportData.imageUrl,
+        storagePath: reportData.storagePath,
+        bucket: reportData.bucket,
+        description: reportData.description || 'No description provided',
+        manualLabel: reportData.issueType || 'Unspecified',
+        location: reportData.location || {},
+        status: 'open',
+        userId: user ? user.uid : 'anonymous',
+        userEmail: user ? user.email : 'anonymous',
+        createdAt: serverTimestamp(),
+        // These fields will be populated by the Cloud Function later
+        aiAnalysis: {
+          detectedLabels: [],
+          summary: '',
+          verified: false
+        }
+      });
+
+      console.log('Report submitted successfully');
+      alert('✅ Report submitted successfully! The AI is analyzing your report. You can view it on the Dashboard.');
+      navigate('/dashboard');
+    } catch (error) {
+      console.error('Error submitting report:', error);
+      alert('Failed to submit report. Please try again.');
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  const validationCheck = (data) => {
+    // Add any quick checks here
+    return true;
   }
 
   const renderStep = () => {
@@ -78,6 +117,7 @@ export default function ReportIssue() {
             reportData={reportData}
             updateReportData={updateReportData}
             onSubmit={handleSubmit}
+            isSubmitting={submitting}
             onBack={prevStep}
           />
         )
@@ -111,6 +151,12 @@ export default function ReportIssue() {
           className="mb-12"
         >
           <StepProgress currentStep={currentStep} />
+          <p className="text-center text-gray-400 text-sm mt-4">
+            {currentStep === 1 && '📸 Upload an image of the issue (pothole, graffiti, broken light, etc.)'}
+            {currentStep === 2 && '🤖 AI will analyze your image using Vision + Gemini to verify the issue'}
+            {currentStep === 3 && '📍 Mark the exact location so city officials can find it'}
+            {currentStep === 4 && '✅ Review and submit your report to help improve your city'}
+          </p>
         </motion.div>
 
         {/* Step Content */}

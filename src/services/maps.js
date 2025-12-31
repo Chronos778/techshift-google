@@ -15,14 +15,15 @@
  * - Google Places API (optional, for address autocomplete)
  */
 
-// TODO: Load Google Maps JavaScript API
-// import { Loader } from '@googlemaps/js-api-loader'
-//
-// const loader = new Loader({
-//   apiKey: 'YOUR_GOOGLE_MAPS_API_KEY',
-//   version: 'weekly',
-//   libraries: ['places', 'geocoding']
-// })
+// Google Maps JavaScript API - Using new functional API (v2.0+)
+// Documentation: https://github.com/googlemaps/js-api-loader
+import { importLibrary, setOptions } from '@googlemaps/js-api-loader'
+
+// Configure API key for all library imports
+setOptions({
+  apiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
+  version: 'weekly'
+})
 
 /**
  * Initialize Google Map
@@ -31,17 +32,18 @@
  * @returns {Promise<google.maps.Map>} - Google Maps instance
  */
 export async function initializeMap(element, options = {}) {
-  // TODO: Google Maps JS API + Geolocation
-  // const { Map } = await loader.importLibrary('maps')
-  // return new Map(element, {
-  //   center: options.center || { lat: 40.7128, lng: -74.0060 },
-  //   zoom: options.zoom || 13,
-  //   styles: darkMapStyles,
-  //   ...options
-  // })
-
-  console.log('[Google Maps] Would initialize map on element:', element)
-  return null
+  try {
+    const { Map } = await importLibrary('maps')
+    return new Map(element, {
+      center: options.center || { lat: 40.7128, lng: -74.0060 },
+      zoom: options.zoom || 13,
+      styles: darkMapStyles,
+      ...options
+    })
+  } catch (error) {
+    console.error('[Google Maps] Failed to initialize map:', error)
+    return null
+  }
 }
 
 /**
@@ -49,31 +51,62 @@ export async function initializeMap(element, options = {}) {
  * @returns {Promise<{lat: number, lng: number}>} - User's coordinates
  */
 export async function getCurrentLocation() {
-  // TODO: Google Maps JS API + Geolocation
-  // return new Promise((resolve, reject) => {
-  //   navigator.geolocation.getCurrentPosition(
-  //     (position) => {
-  //       resolve({
-  //         lat: position.coords.latitude,
-  //         lng: position.coords.longitude
-  //       })
-  //     },
-  //     reject
-  //   )
-  // })
+  const getPosition = (options) => {
+    return new Promise((resolve, reject) => {
+      navigator.geolocation.getCurrentPosition(resolve, reject, options);
+    });
+  };
 
-  console.log('[Google Maps] Would get current location')
-  
-  // Return mock location (San Francisco City Hall)
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve({
-        lat: 37.7792,
-        lng: -122.4191,
-        address: '1 Dr Carlton B Goodlett Pl, San Francisco, CA 94102'
-      })
-    }, 1500)
-  })
+  if (!navigator.geolocation) {
+    throw new Error('Geolocation is not supported by your browser');
+  }
+
+  try {
+    // Try high accuracy first with a 5s timeout
+    const position = await getPosition({ enableHighAccuracy: true, timeout: 5000, maximumAge: 0 });
+    return await processPosition(position);
+  } catch (error) {
+    console.warn('[Google Maps] High accuracy geolocation failed:', error.message);
+
+    // Retry with low accuracy (approximate location)
+    try {
+      const position = await getPosition({ enableHighAccuracy: false, timeout: 10000, maximumAge: 0 });
+      return await processPosition(position);
+    } catch (retryError) {
+      console.warn('[Google Maps] GPS failed, trying IP fallback:', retryError);
+
+      // Final fallback: IP-based location
+      try {
+        const response = await fetch('https://ipapi.co/json/');
+        if (!response.ok) throw new Error('IP API failed');
+        const data = await response.json();
+        return {
+          lat: data.latitude,
+          lng: data.longitude,
+          address: `${data.city}, ${data.region}`
+        };
+      } catch (ipError) {
+        console.error('[Google Maps] All location methods failed:', ipError);
+        throw retryError; // Throw original error if IP fails
+      }
+    }
+  }
+}
+
+async function processPosition(position) {
+  const lat = position.coords.latitude;
+  const lng = position.coords.longitude;
+
+  // Attempt to reverse geocode to get a readable address
+  let address;
+  try {
+    address = await reverseGeocode(lat, lng);
+  } catch (error) {
+    console.warn('[Google Maps] Reverse geocoding failed, using coordinates:', error);
+    address = `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+  }
+
+  return { lat, lng, address };
 }
 
 /**
@@ -83,16 +116,15 @@ export async function getCurrentLocation() {
  * @returns {Promise<string>} - Formatted address
  */
 export async function reverseGeocode(lat, lng) {
-  // TODO: Google Geocoding API
-  // const { Geocoder } = await loader.importLibrary('geocoding')
-  // const geocoder = new Geocoder()
-  // const response = await geocoder.geocode({ location: { lat, lng } })
-  // return response.results[0]?.formatted_address || 'Unknown location'
-
-  console.log('[Google Maps] Would reverse geocode:', lat, lng)
-  
-  // Return mock address
-  return '123 Main Street, San Francisco, CA 94102'
+  try {
+    const { Geocoder } = await importLibrary('geocoding')
+    const geocoder = new Geocoder()
+    const response = await geocoder.geocode({ location: { lat, lng } })
+    return response.results[0]?.formatted_address || 'Unknown location'
+  } catch (error) {
+    console.error('[Google Maps] Reverse geocoding failed:', error)
+    return `${lat.toFixed(4)}, ${lng.toFixed(4)}`
+  }
 }
 
 /**
@@ -101,17 +133,18 @@ export async function reverseGeocode(lat, lng) {
  * @param {Object} position - Marker position
  * @param {Object} options - Marker options
  */
-export function addMarker(map, position, options = {}) {
-  // TODO: Add marker with custom icon
-  // const { AdvancedMarkerElement } = await loader.importLibrary('marker')
-  // return new AdvancedMarkerElement({
-  //   map,
-  //   position,
-  //   ...options
-  // })
-
-  console.log('[Google Maps] Would add marker at:', position)
-  return null
+export async function addMarker(map, position, options = {}) {
+  try {
+    const { AdvancedMarkerElement } = await importLibrary('marker')
+    return new AdvancedMarkerElement({
+      map,
+      position,
+      ...options
+    })
+  } catch (error) {
+    console.error('[Google Maps] Failed to add marker:', error)
+    return null
+  }
 }
 
 /**

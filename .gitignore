@@ -15,6 +15,12 @@ build/
 .env.test.local
 .env.production.local
 
+# Firebase
+.firebase/
+firebase-debug.log
+firebase-debug.*.log
+.runtimeconfig.json
+
 # IDE and Editor
 .idea/
 .vscode/
@@ -37,10 +43,25 @@ logs/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
 
 # Testing
 coverage/
+.nyc_output/
 
 # Misc
 *.local
 .cache/
+.temp/
+.tmp/
+
+# Temporary and test files
+*.timestamp-*.mjs
+verify_key*.js
+verify_model.js
+*.zip
+
+# Production
+*.tsbuildinfo
+next-env.d.ts

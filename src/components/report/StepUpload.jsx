@@ -1,22 +1,54 @@
 import { useCallback, useState } from 'react'
 import { motion } from 'framer-motion'
-import { Upload, Camera, Image, X, ArrowRight } from 'lucide-react'
+import { Upload, Camera, Image, X, ArrowRight, AlertCircle } from 'lucide-react'
 import { Button, Card } from '../ui'
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage'
+import { storage } from '../../firebase'
 
 export default function StepUpload({ reportData, updateReportData, onNext }) {
   const [isDragging, setIsDragging] = useState(false)
+  const [isUploading, setIsUploading] = useState(false)
+  const [uploadError, setUploadError] = useState(null)
 
-  const handleFileSelect = useCallback((file) => {
-    if (file && file.type.startsWith('image/')) {
-      // TODO: Upload image to Firebase Storage
+  const handleFileSelect = useCallback(async (file) => {
+    if (!file || !file.type.startsWith('image/')) {
+      setUploadError('Please select a valid image file')
+      return
+    }
+
+    setUploadError(null)
+    setIsUploading(true)
+
+    try {
+      // Read preview
       const reader = new FileReader()
-      reader.onload = (e) => {
+      reader.onload = async (e) => {
         updateReportData({
           image: file,
           imagePreview: e.target.result,
         })
       }
       reader.readAsDataURL(file)
+
+      // Upload to Firebase Storage
+      const imageRef = ref(storage, `issues/${Date.now()}_${file.name}`)
+      const uploadResult = await uploadBytes(imageRef, file)
+      const downloadURL = await getDownloadURL(uploadResult.ref)
+
+      console.log('Image uploaded successfully:', downloadURL)
+
+      updateReportData({
+        image: file,
+        imageUrl: downloadURL,
+        storagePath: uploadResult.ref.fullPath,
+        bucket: uploadResult.ref.bucket,
+      })
+
+      setIsUploading(false)
+    } catch (error) {
+      console.error('Upload error:', error)
+      setUploadError(`Upload failed: ${error.message}`)
+      setIsUploading(false)
     }
   }, [updateReportData])
 
@@ -55,7 +87,7 @@ export default function StepUpload({ reportData, updateReportData, onNext }) {
           Capture or Upload Image
         </h2>
         <p className="text-gray-400 mb-6">
-          Take a photo or upload an image of the city issue you want to report
+          Take a photo or upload an image of the city issue you want to report. Our AI will analyze it to verify the issue type.
         </p>
 
         {reportData.imagePreview ? (
@@ -120,29 +152,50 @@ export default function StepUpload({ reportData, updateReportData, onNext }) {
         )}
 
         {/* Mobile camera option */}
-        <div className="mt-6 flex flex-col sm:flex-row gap-4">
-          <label className="flex-1 cursor-pointer">
+        <div className="mt-6 flex flex-col gap-3">
+          {uploadError && (
+            <div className="flex items-center gap-2 p-3 bg-red-500/10 border border-red-500/30 rounded-lg">
+              <AlertCircle className="w-5 h-5 text-red-400 shrink-0" />
+              <p className="text-sm text-red-300">{uploadError}</p>
+            </div>
+          )}
+
+          {isUploading && (
+            <div className="flex items-center gap-2 p-3 bg-blue-500/10 border border-blue-500/30 rounded-lg">
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
+                className="w-4 h-4"
+              >
+                <Upload className="w-4 h-4 text-blue-400" />
+              </motion.div>
+              <p className="text-sm text-blue-300">Uploading image...</p>
+            </div>
+          )}
+
+          <label className="cursor-pointer">
             <input
               type="file"
               accept="image/*"
               capture="environment"
               onChange={handleInputChange}
+              disabled={isUploading}
               className="hidden"
             />
-            <div className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl border border-dark-border hover:border-neon-blue/50 transition-colors">
+            <div className={`flex items-center justify-center gap-2 px-4 py-4 rounded-xl border border-dark-border hover:border-neon-blue/50 transition-colors min-h-[44px] ${isUploading ? 'opacity-50 cursor-not-allowed' : ''}`}>
               <Camera className="w-5 h-5 text-neon-blue" />
               <span className="text-white font-medium">Take Photo</span>
             </div>
           </label>
           
-          <label className="flex-1 cursor-pointer">
+          <label className="cursor-pointer">
             <input
               type="file"
               accept="image/*"
               onChange={handleInputChange}
               className="hidden"
             />
-            <div className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl border border-dark-border hover:border-neon-blue/50 transition-colors">
+            <div className="flex items-center justify-center gap-2 px-4 py-4 rounded-xl border border-dark-border hover:border-neon-blue/50 transition-colors min-h-[44px]">
               <Upload className="w-5 h-5 text-neon-purple" />
               <span className="text-white font-medium">Upload File</span>
             </div>
@@ -154,7 +207,7 @@ export default function StepUpload({ reportData, updateReportData, onNext }) {
       <div className="flex justify-end">
         <Button
           onClick={onNext}
-          disabled={!reportData.imagePreview}
+          disabled={!reportData.imageUrl || isUploading}
           icon={ArrowRight}
           iconPosition="right"
           size="lg"
