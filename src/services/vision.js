@@ -18,7 +18,7 @@
  * - Cloud Functions for Firebase (to securely call Vision API)
  */
 
-const FUNCTION_BASE = 'https://us-central1-smart-city-auto-reporter.cloudfunctions.net'
+const FUNCTION_BASE = 'https://analyzeimagehttp-u32gmpf24a-uc.a.run.app'
 
 /**
  * Analyze image using Cloud Vision API
@@ -27,7 +27,7 @@ const FUNCTION_BASE = 'https://us-central1-smart-city-auto-reporter.cloudfunctio
  */
 export async function analyzeImage(imageUrl) {
   try {
-    const response = await fetch(`${FUNCTION_BASE}/analyzeImageHttp`, {
+    const response = await fetch(FUNCTION_BASE, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

@@ -1,37 +1,46 @@
 const { onDocumentCreated, onDocumentUpdated } = require("firebase-functions/v2/firestore");
 const { onCall, onRequest } = require("firebase-functions/v2/https");
+const { defineSecret } = require("firebase-functions/params");
 const { initializeApp } = require("firebase-admin/app");
 const { getFirestore } = require("firebase-admin/firestore");
 const vision = require("@google-cloud/vision");
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 const axios = require("axios");
 
+// Define secrets for Firebase Functions v2
+const geminiApiKey = defineSecret("GEMINI_API_KEY");
+const googleMapsApiKey = defineSecret("GOOGLE_MAPS_API_KEY");
+
 const app = initializeApp();
 const db = getFirestore(app);
-// db.settings({ ignoreUndefinedProperties: true }); // Good practice, but optional. Removed bad config.
 
 const visionClient = new vision.ImageAnnotatorClient();
 
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-const GOOGLE_MAPS_API_KEY = process.env.GOOGLE_MAPS_API_KEY;
-
 // Helper: Gemini image analysis
-async function analyzeImageCore(imageUrl) {
+async function analyzeImageCore(imageUrl, apiKey) {
     if (!imageUrl) {
         throw new Error("imageUrl is required");
     }
 
     console.log(`[analyzeImage] Analyzing:`, imageUrl.substring(0, 80));
+    console.log(`[analyzeImage] API Key present:`, !!apiKey, apiKey ? `(${apiKey.substring(0, 10)}...)` : "(none)");
     let labels = [];
     let success = false;
 
+    if (!apiKey) {
+        console.error("[analyzeImage] ERROR: No API key provided!");
+    }
+
     try {
-        const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
+        const genAI = new GoogleGenerativeAI(apiKey);
         const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+        console.log("[analyzeImage] Initialized Gemini model, fetching image...");
 
-        const response = await axios.get(imageUrl, { responseType: "arraybuffer", timeout: 10000 });
+        const response = await axios.get(imageUrl, { responseType: "arraybuffer", timeout: 15000 });
         const imageBase64 = Buffer.from(response.data).toString("base64");
+        console.log("[analyzeImage] Image fetched, size:", imageBase64.length, "chars");
 
+        console.log("[analyzeImage] Calling Gemini API...");
         const result = await model.generateContent([
             { inlineData: { mimeType: "image/jpeg", data: imageBase64 } },
             "List the 5 main objects or infrastructure elements you see. Return ONLY a comma-separated list."
@@ -51,6 +60,7 @@ async function analyzeImageCore(imageUrl) {
         }
     } catch (err) {
         console.error("[analyzeImage] Gemini failed:", err.message);
+        console.error("[analyzeImage] Full error:", JSON.stringify(err, Object.getOwnPropertyNames(err)));
     }
 
     if (!success || labels.length === 0) {
@@ -72,12 +82,12 @@ async function analyzeImageCore(imageUrl) {
 }
 
 // Helper: Gemini description generation
-async function generateDescriptionCore(imageUrl, visionResults) {
+async function generateDescriptionCore(imageUrl, visionResults, apiKey) {
     let description = "";
     let success = false;
 
     try {
-        const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
+        const genAI = new GoogleGenerativeAI(apiKey);
         const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
         const response = await axios.get(imageUrl, { responseType: "arraybuffer", timeout: 10000 });
@@ -116,7 +126,7 @@ async function generateDescriptionCore(imageUrl, visionResults) {
 }
 
 // Firestore trigger: analyze new issues and attach AI analysis
-exports.analyzeIssueRequest = onDocumentCreated("issues/{issueId}", async (event) => {
+exports.analyzeIssueRequest = onDocumentCreated({ document: "issues/{issueId}", secrets: [geminiApiKey] }, async (event) => {
     const snapshot = event.data;
     if (!snapshot) return;
 
@@ -126,8 +136,9 @@ exports.analyzeIssueRequest = onDocumentCreated("issues/{issueId}", async (event
     if (!data?.imageUrl) return;
 
     try {
-        const analysis = await analyzeImageCore(data.imageUrl);
-        const description = await generateDescriptionCore(data.imageUrl, analysis);
+        const apiKey = geminiApiKey.value();
+        const analysis = await analyzeImageCore(data.imageUrl, apiKey);
+        const description = await generateDescriptionCore(data.imageUrl, analysis, apiKey);
 
         await event.data.ref.update({
             aiAnalysis: { vision: analysis, gemini: description, verified: false },
@@ -192,18 +203,18 @@ exports.onIssueStatusChange = onDocumentUpdated("issues/{issueId}", async (event
 });
 
 // Callable functions (still available for clients that use httpsCallable)
-exports.analyzeImage = onCall({ region: "us-central1", invoker: "public", enforceAppCheck: false, cors: true }, async (request) => {
+exports.analyzeImage = onCall({ region: "us-central1", invoker: "public", enforceAppCheck: false, cors: true, secrets: [geminiApiKey] }, async (request) => {
     const { imageUrl } = request.data || {};
-    return analyzeImageCore(imageUrl);
+    return analyzeImageCore(imageUrl, geminiApiKey.value());
 });
 
-exports.generateDescription = onCall({ region: "us-central1", invoker: "public", enforceAppCheck: false, cors: true }, async (request) => {
+exports.generateDescription = onCall({ region: "us-central1", invoker: "public", enforceAppCheck: false, cors: true, secrets: [geminiApiKey] }, async (request) => {
     const { imageUrl, visionResults } = request.data || {};
-    return generateDescriptionCore(imageUrl, visionResults);
+    return generateDescriptionCore(imageUrl, visionResults, geminiApiKey.value());
 });
 
 // HTTP endpoints with explicit CORS for local dev / direct fetch
-exports.analyzeImageHttp = onRequest({ region: "us-central1" }, async (req, res) => {
+exports.analyzeImageHttp = onRequest({ region: "us-central1", secrets: [geminiApiKey] }, async (req, res) => {
     res.set("Access-Control-Allow-Origin", "*");
     res.set("Access-Control-Allow-Methods", "POST, OPTIONS");
     res.set("Access-Control-Allow-Headers", "Content-Type");
@@ -211,7 +222,7 @@ exports.analyzeImageHttp = onRequest({ region: "us-central1" }, async (req, res)
 
     try {
         const { imageUrl } = req.body || {};
-        const result = await analyzeImageCore(imageUrl);
+        const result = await analyzeImageCore(imageUrl, geminiApiKey.value());
         res.status(200).json(result);
     } catch (err) {
         console.error("[analyzeImageHttp] Error:", err.message);
@@ -219,7 +230,7 @@ exports.analyzeImageHttp = onRequest({ region: "us-central1" }, async (req, res)
     }
 });
 
-exports.generateDescriptionHttp = onRequest({ region: "us-central1" }, async (req, res) => {
+exports.generateDescriptionHttp = onRequest({ region: "us-central1", secrets: [geminiApiKey] }, async (req, res) => {
     res.set("Access-Control-Allow-Origin", "*");
     res.set("Access-Control-Allow-Methods", "POST, OPTIONS");
     res.set("Access-Control-Allow-Headers", "Content-Type");
@@ -227,7 +238,7 @@ exports.generateDescriptionHttp = onRequest({ region: "us-central1" }, async (re
 
     try {
         const { imageUrl, visionResults } = req.body || {};
-        const result = await generateDescriptionCore(imageUrl, visionResults);
+        const result = await generateDescriptionCore(imageUrl, visionResults, geminiApiKey.value());
         res.status(200).json(result);
     } catch (err) {
         console.error("[generateDescriptionHttp] Error:", err.message);

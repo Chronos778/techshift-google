@@ -18,7 +18,7 @@
  * - Cloud Functions for Firebase
  */
 
-const FUNCTION_BASE = 'https://us-central1-smart-city-auto-reporter.cloudfunctions.net'
+const FUNCTION_BASE = 'https://generatedescriptionhttp-u32gmpf24a-uc.a.run.app'
 
 /**
  * Generate issue description using Gemini
@@ -28,7 +28,7 @@ const FUNCTION_BASE = 'https://us-central1-smart-city-auto-reporter.cloudfunctio
  */
 export async function generateDescription(imageUrl, visionResults) {
   try {
-    const response = await fetch(`${FUNCTION_BASE}/generateDescriptionHttp`, {
+    const response = await fetch(FUNCTION_BASE, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
