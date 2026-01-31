@@ -68,15 +68,15 @@ export default function MapView({ issues, onSelectIssue }) {
     return (
       <div className="grid lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">
-          <Card hover={false} padding={false} className="overflow-hidden flex items-center justify-center h-[600px] bg-dark-card">
+          <Card hover={false} padding={false} className="overflow-hidden flex items-center justify-center h-[600px] bg-cream">
             <div className="text-center p-6 max-w-md">
-              <h3 className="text-xl font-bold text-white mb-4">Map Temporarily Unavailable</h3>
-              <p className="text-gray-400 mb-4">
+              <h3 className="text-xl font-bold text-slate mb-4">Map Temporarily Unavailable</h3>
+              <p className="text-slate-muted mb-4">
                 The Google Maps API is initializing. This can take 30-60 seconds when the API key referrer restrictions are being updated.
               </p>
-              <div className="bg-dark-border/50 rounded-lg p-3 mb-4 text-left">
-                <p className="text-gray-300 text-sm mb-2"><strong>What you can still do:</strong></p>
-                <ul className="text-gray-400 text-sm space-y-1">
+              <div className="bg-cream-dark/50 rounded-lg p-3 mb-4 text-left">
+                <p className="text-slate text-sm mb-2"><strong>What you can still do:</strong></p>
+                <ul className="text-slate-muted text-sm space-y-1">
                   <li>• View all issues in the list on the right</li>
                   <li>• Click any issue to see details</li>
                   <li>• Map will work after refresh if key is ready</li>
@@ -84,7 +84,7 @@ export default function MapView({ issues, onSelectIssue }) {
               </div>
               <button
                 onClick={() => window.location.reload()}
-                className="px-4 py-2 bg-neon-blue text-dark-bg rounded-lg font-semibold hover:opacity-90 transition"
+                className="px-4 py-2 bg-blueprint text-cream rounded-lg font-semibold hover:bg-blueprint/90 transition"
               >
                 Try Refreshing
               </button>
@@ -100,10 +100,10 @@ export default function MapView({ issues, onSelectIssue }) {
     return (
       <div className="grid lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">
-          <Card hover={false} padding={false} className="overflow-hidden flex items-center justify-center h-[600px] bg-dark-card">
+          <Card hover={false} padding={false} className="overflow-hidden flex items-center justify-center h-[600px] bg-cream">
             <div className="text-center p-6">
-              <h3 className="text-xl font-bold text-white mb-2">Map Loading...</h3>
-              <p className="text-gray-400">If this persists, check your Google Maps API Key.</p>
+              <h3 className="text-xl font-bold text-slate mb-2">Map Loading...</h3>
+              <p className="text-slate-muted">If this persists, check your Google Maps API Key.</p>
             </div>
           </Card>
         </div>
@@ -168,7 +168,7 @@ export default function MapView({ issues, onSelectIssue }) {
           <div className="absolute top-4 left-4 flex gap-2">
             <button
               onClick={() => setShowHeatmap(!showHeatmap)}
-              className={`flex items-center gap-2 px-3 py-2 rounded-lg backdrop-blur-md transition-colors ${showHeatmap ? 'bg-neon-blue text-white' : 'bg-black/50 text-gray-300 hover:bg-black/70'
+              className={`flex items-center gap-2 px-3 py-2 rounded-lg backdrop-blur-md transition-colors ${showHeatmap ? 'bg-blueprint text-cream' : 'bg-cream/80 text-slate hover:bg-cream'
                 }`}
             >
               <Layers className="w-4 h-4" />
@@ -187,14 +187,14 @@ function SidePanel({ issues, onSelectIssue }) {
   return (
     <div className="lg:col-span-1">
       <Card hover={false} className="h-[600px] overflow-hidden flex flex-col">
-        <h3 className="text-lg font-semibold text-white mb-4">Recent Issues</h3>
+        <h3 className="text-lg font-semibold text-slate mb-4">Recent Issues</h3>
         <div className="flex-1 overflow-y-auto space-y-3 pr-2 -mr-2">
           {issues.slice(0, 10).map((issue) => (
             <motion.button
               key={issue.id}
               onClick={() => onSelectIssue(issue)}
               whileHover={{ scale: 1.02 }}
-              className="w-full text-left p-3 rounded-xl bg-dark-card border border-dark-border hover:border-neon-blue/30 transition-colors"
+              className="w-full text-left p-3 rounded-xl bg-cream-dark/30 border border-cream-muted hover:border-blueprint/30 transition-colors"
             >
               <div className="flex items-start gap-3">
                 <img
@@ -204,12 +204,12 @@ function SidePanel({ issues, onSelectIssue }) {
                 />
                 <div className="flex-1 min-w-0">
                   <IssueTypeTag type={issue.type} size="sm" />
-                  <p className="text-white text-sm mt-1 line-clamp-1">
+                  <p className="text-slate text-sm mt-1 line-clamp-1">
                     {issue.location?.address || 'Unknown Location'}
                   </p>
                   <div className="flex items-center justify-between mt-2">
                     <StatusBadge status={issue.status} size="sm" />
-                    <span className="text-xs text-gray-500">
+                    <span className="text-xs text-slate-muted">
                       {new Date(issue.createdAt).toLocaleDateString()}
                     </span>
                   </div>

@@ -7,31 +7,42 @@ export default function DashboardStats({ issues }) {
       label: 'Total Reports',
       value: issues.length,
       icon: TrendingUp,
-      color: 'neon-blue',
+      color: 'blueprint',
+      bgColor: 'bg-blueprint/10',
       change: '+12%',
     },
     {
       label: 'Pending',
       value: issues.filter((i) => i.status !== 'resolved' && !i.resolved).length,
       icon: AlertCircle,
-      color: 'yellow-500',
+      color: 'warning',
+      bgColor: 'bg-warning/10',
       change: null,
     },
     {
       label: 'In Progress',
       value: issues.filter((i) => i.status === 'in-progress').length,
       icon: Clock,
-      color: 'neon-purple',
+      color: 'accent',
+      bgColor: 'bg-accent/10',
       change: null,
     },
     {
       label: 'Resolved',
       value: issues.filter((i) => i.status === 'resolved' || i.resolved === true).length,
       icon: CheckCircle,
-      color: 'neon-green',
+      color: 'success',
+      bgColor: 'bg-success/10',
       change: '+8%',
     },
   ]
+
+  const colorMap = {
+    blueprint: 'text-blueprint',
+    warning: 'text-warning',
+    accent: 'text-accent',
+    success: 'text-success',
+  }
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-6">
@@ -42,18 +53,18 @@ export default function DashboardStats({ issues }) {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.1 }}
-            className="glass rounded-xl p-4"
+            className="bg-cream border border-cream-muted p-5 shadow-paper hover:shadow-paper-md transition-shadow"
           >
             <div className="flex items-start justify-between">
               <div>
-                <p className="text-gray-400 text-sm">{stat.label}</p>
-                <p className="text-2xl font-bold text-white mt-1">{stat.value}</p>
+                <p className="text-slate-muted font-body text-sm">{stat.label}</p>
+                <p className="font-display text-3xl font-bold text-slate mt-1">{stat.value}</p>
                 {stat.change && (
-                  <p className="text-xs text-neon-green mt-1">{stat.change} this week</p>
+                  <p className="text-xs text-success font-display font-medium mt-1">{stat.change} this week</p>
                 )}
               </div>
-              <div className={`w-10 h-10 rounded-lg bg-${stat.color}/20 flex items-center justify-center`}>
-                <stat.icon className={`w-5 h-5 text-${stat.color}`} />
+              <div className={`w-10 h-10 ${stat.bgColor} flex items-center justify-center`}>
+                <stat.icon className={`w-5 h-5 ${colorMap[stat.color]}`} />
               </div>
             </div>
           </motion.div>

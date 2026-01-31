@@ -74,7 +74,95 @@ export function suggestSeverity(analysisResults) {
   return 'low'
 }
 
+/**
+ * Analyze image with Google Vision API (via Cloud Function)
+ * @param {string} imageUrl - URL of the image to analyze
+ * @returns {Promise<Object>} - Vision API results
+ */
+export async function analyzeImageWithVision(imageUrl) {
+  try {
+    // In production, call Cloud Function that wraps Vision API
+    const response = await fetch(`${FUNCTION_BASE}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ imageUrl, mode: 'vision' }),
+    })
+    
+    if (!response.ok) throw new Error(`HTTP ${response.status}`)
+    return await response.json()
+  } catch (error) {
+    console.warn('[Vision API] Using fallback:', error?.message)
+    return {
+      labels: [{ description: 'infrastructure', score: 0.85 }],
+      confidence: 0.75,
+    }
+  }
+}
+
+/**
+ * Generate report description with Gemini
+ * @param {string} imageUrl - URL of the image
+ * @param {Array} labels - Labels from Vision API
+ * @returns {Promise<Object>} - Generated report
+ */
+export async function generateReportWithGemini(imageUrl, labels = []) {
+  try {
+    const response = await fetch(FUNCTION_BASE, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ imageUrl, labels, mode: 'generate' }),
+    })
+    
+    if (!response.ok) throw new Error(`HTTP ${response.status}`)
+    const data = await response.json()
+    
+    return {
+      summary: data.description || 'Issue detected in image',
+      category: data.category || detectCategoryFromLabels(labels),
+    }
+  } catch (error) {
+    console.warn('[Gemini] Using fallback:', error?.message)
+    return {
+      summary: 'City infrastructure issue detected',
+      category: detectCategoryFromLabels(labels),
+    }
+  }
+}
+
+/**
+ * Detect issue category from Vision labels
+ */
+function detectCategoryFromLabels(labels) {
+  const labelText = labels.map(l => l.description?.toLowerCase() || '').join(' ')
+  
+  if (labelText.includes('pothole') || labelText.includes('road') || labelText.includes('asphalt')) {
+    return 'pothole'
+  }
+  if (labelText.includes('light') || labelText.includes('lamp') || labelText.includes('pole')) {
+    return 'broken-light'
+  }
+  if (labelText.includes('graffiti') || labelText.includes('paint') || labelText.includes('vandal')) {
+    return 'graffiti'
+  }
+  if (labelText.includes('trash') || labelText.includes('garbage') || labelText.includes('litter')) {
+    return 'garbage'
+  }
+  if (labelText.includes('flood') || labelText.includes('water') || labelText.includes('puddle')) {
+    return 'flooding'
+  }
+  if (labelText.includes('tree') || labelText.includes('branch')) {
+    return 'tree'
+  }
+  if (labelText.includes('sign') || labelText.includes('traffic')) {
+    return 'traffic-sign'
+  }
+  
+  return 'other'
+}
+
 export default {
   generateDescription,
   suggestSeverity,
+  analyzeImageWithVision,
+  generateReportWithGemini,
 }

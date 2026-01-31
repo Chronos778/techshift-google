@@ -5,7 +5,7 @@ export default function IssueList({ issues, onSelectIssue }) {
   if (issues.length === 0) {
     return (
       <Card hover={false} className="text-center py-12">
-        <p className="text-gray-400">No issues found matching your filters.</p>
+        <p className="text-slate-muted font-body">No issues found matching your filters.</p>
       </Card>
     )
   }

@@ -98,14 +98,14 @@ export default function Dashboard() {
 
 
   return (
-    <div className="min-h-screen pt-20">
+    <div className="min-h-screen pt-20 bg-cream">
       {/* Header */}
-      <div className="bg-dark-card border-b border-dark-border sticky top-16 z-30">
-        <div className="max-w-7xl mx-auto px-4 py-4">
+      <div className="bg-cream border-b border-cream-muted sticky top-16 z-30">
+        <div className="max-w-7xl mx-auto px-4 py-5">
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
             <div>
-              <h1 className="text-2xl font-bold text-white">City Issues Dashboard</h1>
-              <p className="text-gray-400 text-sm">
+              <h1 className="font-display text-2xl font-bold text-slate tracking-tight">City Issues Dashboard</h1>
+              <p className="text-slate-muted font-body text-sm mt-1">
                 {filteredIssues.length} issues found {filteredIssues.filter(i => i.aiVerified).length > 0 && `• ${filteredIssues.filter(i => i.aiVerified).length} AI-verified`}
               </p>
             </div>
@@ -113,20 +113,20 @@ export default function Dashboard() {
             <div className="flex items-center gap-3">
               {/* Search */}
               <div className="relative flex-1 lg:w-64">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-muted" strokeWidth={2} />
                 <input
                   type="text"
                   placeholder="Search issues..."
                   value={filters.search}
                   onChange={(e) => setFilters({ ...filters, search: e.target.value })}
-                  className="w-full pl-10 pr-4 py-2 rounded-lg bg-dark-bg border border-dark-border focus:border-neon-blue/50 focus:outline-none text-white text-sm placeholder-gray-600"
+                  className="w-full pl-10 pr-4 py-2.5 bg-cream border-2 border-cream-muted focus:border-accent text-slate font-display text-sm placeholder-slate-muted"
                 />
                 {filters.search && (
                   <button
                     onClick={() => setFilters({ ...filters, search: '' })}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-muted hover:text-accent transition-colors"
                   >
-                    <X className="w-4 h-4" />
+                    <X className="w-4 h-4" strokeWidth={2} />
                   </button>
                 )}
               </div>
@@ -142,24 +142,24 @@ export default function Dashboard() {
               </Button>
 
               {/* View toggle */}
-              <div className="flex items-center rounded-lg bg-dark-bg border border-dark-border p-1">
+              <div className="flex items-center border-2 border-cream-muted bg-cream">
                 <button
                   onClick={() => setViewMode('map')}
-                  className={`p-2 rounded-md transition-colors ${viewMode === 'map'
-                    ? 'bg-neon-blue/20 text-neon-blue'
-                    : 'text-gray-400 hover:text-white'
+                  className={`p-2.5 transition-colors ${viewMode === 'map'
+                    ? 'bg-accent text-cream'
+                    : 'text-slate-muted hover:text-slate'
                     }`}
                 >
-                  <MapIcon className="w-4 h-4" />
+                  <MapIcon className="w-4 h-4" strokeWidth={2} />
                 </button>
                 <button
                   onClick={() => setViewMode('list')}
-                  className={`p-2 rounded-md transition-colors ${viewMode === 'list'
-                    ? 'bg-neon-blue/20 text-neon-blue'
-                    : 'text-gray-400 hover:text-white'
+                  className={`p-2.5 transition-colors ${viewMode === 'list'
+                    ? 'bg-accent text-cream'
+                    : 'text-slate-muted hover:text-slate'
                     }`}
                 >
-                  <List className="w-4 h-4" />
+                  <List className="w-4 h-4" strokeWidth={2} />
                 </button>
               </div>
             </div>
@@ -171,16 +171,16 @@ export default function Dashboard() {
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: 'auto', opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
-              className="mt-4 pt-4 border-t border-dark-border"
+              className="mt-4 pt-4 border-t border-cream-muted"
             >
               <div className="flex flex-wrap gap-4">
                 {/* Status filter */}
                 <div>
-                  <label className="block text-xs text-gray-500 mb-1">Status</label>
+                  <label className="block font-display text-xs uppercase tracking-wider text-slate-muted mb-1.5">Status</label>
                   <select
                     value={filters.status}
                     onChange={(e) => setFilters({ ...filters, status: e.target.value })}
-                    className="px-3 py-2 rounded-lg bg-dark-bg border border-dark-border text-white text-sm focus:outline-none focus:border-neon-blue/50"
+                    className="px-3 py-2.5 bg-cream border-2 border-cream-muted text-slate font-display text-sm focus:outline-none focus:border-accent"
                   >
                     {statusOptions.map((opt) => (
                       <option key={opt.value} value={opt.value}>
@@ -192,11 +192,11 @@ export default function Dashboard() {
 
                 {/* Type filter */}
                 <div>
-                  <label className="block text-xs text-gray-500 mb-1">Issue Type</label>
+                  <label className="block font-display text-xs uppercase tracking-wider text-slate-muted mb-1.5">Issue Type</label>
                   <select
                     value={filters.type}
                     onChange={(e) => setFilters({ ...filters, type: e.target.value })}
-                    className="px-3 py-2 rounded-lg bg-dark-bg border border-dark-border text-white text-sm focus:outline-none focus:border-neon-blue/50"
+                    className="px-3 py-2.5 bg-cream border-2 border-cream-muted text-slate font-display text-sm focus:outline-none focus:border-accent"
                   >
                     <option value="all">All Types</option>
                     {issueTypes.map((type) => (
@@ -211,7 +211,7 @@ export default function Dashboard() {
                 {(filters.status !== 'all' || filters.type !== 'all' || filters.search) && (
                   <button
                     onClick={() => setFilters({ status: 'all', type: 'all', search: '' })}
-                    className="self-end px-3 py-2 text-sm text-neon-blue hover:text-neon-blue/80"
+                    className="self-end px-3 py-2 font-display text-sm font-medium text-accent hover:text-accent-hover transition-colors"
                   >
                     Clear all
                   </button>

@@ -126,19 +126,41 @@ export default function ReportIssue() {
     }
   }
 
+  const stepHints = [
+    '📸 Upload an image of the issue (pothole, graffiti, broken light, etc.)',
+    '🤖 AI will analyze your image using Vision + Gemini to verify the issue',
+    '📍 Mark the exact location so city officials can find it',
+    '✅ Review and submit your report to help improve your city'
+  ]
+
   return (
-    <div className="min-h-screen pt-24 pb-12 px-4">
-      <div className="max-w-4xl mx-auto">
+    <div className="min-h-screen pt-24 pb-12 px-4 bg-cream">
+      {/* Blueprint grid background */}
+      <div 
+        className="fixed inset-0 opacity-[0.03] pointer-events-none"
+        style={{
+          backgroundImage: `
+            linear-gradient(#3B7DD8 1px, transparent 1px),
+            linear-gradient(90deg, #3B7DD8 1px, transparent 1px)
+          `,
+          backgroundSize: '40px 40px',
+        }}
+      />
+
+      <div className="max-w-4xl mx-auto relative">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-12"
         >
-          <h1 className="text-3xl md:text-4xl font-bold text-white mb-3">
+          <span className="inline-block font-display text-xs font-semibold uppercase tracking-[0.2em] text-accent mb-3">
+            Civic Reporting
+          </span>
+          <h1 className="font-display text-3xl md:text-4xl font-bold text-slate mb-3 tracking-tight">
             Report an Issue
           </h1>
-          <p className="text-gray-400">
+          <p className="text-slate-muted font-body text-lg">
             Help improve your city by reporting infrastructure problems
           </p>
         </motion.div>
@@ -151,12 +173,14 @@ export default function ReportIssue() {
           className="mb-12"
         >
           <StepProgress currentStep={currentStep} />
-          <p className="text-center text-gray-400 text-sm mt-4">
-            {currentStep === 1 && '📸 Upload an image of the issue (pothole, graffiti, broken light, etc.)'}
-            {currentStep === 2 && '🤖 AI will analyze your image using Vision + Gemini to verify the issue'}
-            {currentStep === 3 && '📍 Mark the exact location so city officials can find it'}
-            {currentStep === 4 && '✅ Review and submit your report to help improve your city'}
-          </p>
+          <motion.p 
+            key={currentStep}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="text-center text-slate-muted font-body text-sm mt-6 max-w-md mx-auto"
+          >
+            {stepHints[currentStep - 1]}
+          </motion.p>
         </motion.div>
 
         {/* Step Content */}

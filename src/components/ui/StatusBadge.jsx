@@ -1,23 +1,38 @@
 const statusConfig = {
   pending: {
     label: 'Pending',
-    color: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
-    dot: 'bg-yellow-400',
+    color: 'bg-warning/10 text-warning border-warning',
+    dot: 'bg-warning',
+  },
+  open: {
+    label: 'Open',
+    color: 'bg-info/10 text-info border-info',
+    dot: 'bg-info',
+  },
+  verified: {
+    label: 'Verified',
+    color: 'bg-success/10 text-success border-success',
+    dot: 'bg-success',
   },
   'in-progress': {
     label: 'In Progress',
-    color: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
-    dot: 'bg-blue-400',
+    color: 'bg-info/10 text-info border-info',
+    dot: 'bg-info',
   },
   resolved: {
     label: 'Resolved',
-    color: 'bg-green-500/20 text-green-400 border-green-500/30',
-    dot: 'bg-green-400',
+    color: 'bg-success/10 text-success border-success',
+    dot: 'bg-success',
+  },
+  flagged: {
+    label: 'Flagged',
+    color: 'bg-warning/10 text-warning border-warning',
+    dot: 'bg-warning',
   },
   rejected: {
     label: 'Rejected',
-    color: 'bg-red-500/20 text-red-400 border-red-500/30',
-    dot: 'bg-red-400',
+    color: 'bg-danger/10 text-danger border-danger',
+    dot: 'bg-danger',
   },
 }
 
@@ -25,7 +40,7 @@ export default function StatusBadge({ status, size = 'md', showDot = true }) {
   const config = statusConfig[status] || statusConfig.pending
   
   const sizes = {
-    sm: 'text-xs px-2 py-0.5',
+    sm: 'text-[10px] px-2 py-0.5',
     md: 'text-xs px-2.5 py-1',
     lg: 'text-sm px-3 py-1.5',
   }
@@ -33,7 +48,7 @@ export default function StatusBadge({ status, size = 'md', showDot = true }) {
   return (
     <span
       className={`
-        inline-flex items-center gap-1.5 rounded-full border font-medium
+        inline-flex items-center gap-1.5 border-2 font-display font-semibold uppercase tracking-wide
         ${config.color} ${sizes[size]}
       `}
     >

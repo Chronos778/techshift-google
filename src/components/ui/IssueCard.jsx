@@ -43,27 +43,13 @@ export default function IssueCard({ issue, onClick, variant = 'default' }) {
   return (
     <motion.div
       onClick={onClick}
-      whileHover={{ y: -4, scale: 1.01 }}
+      whileHover={{ y: -4 }}
       whileTap={{ scale: 0.99 }}
       className="group cursor-pointer"
     >
       <div 
-        className="relative rounded-2xl overflow-hidden transition-all duration-300"
-        style={{
-          background: 'rgba(17, 17, 24, 0.8)',
-          backdropFilter: 'blur(20px)',
-          border: '1px solid rgba(255, 255, 255, 0.1)',
-          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.2)',
-        }}
+        className="relative overflow-hidden transition-all duration-300 bg-cream border border-cream-muted shadow-paper hover:shadow-paper-lg"
       >
-        {/* Hover glow effect */}
-        <div 
-          className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
-          style={{
-            background: 'radial-gradient(circle at 50% 0%, rgba(0, 212, 255, 0.1), transparent 50%)',
-          }}
-        />
-
         {/* Image section */}
         <div className="relative">
           <img
@@ -73,19 +59,14 @@ export default function IssueCard({ issue, onClick, variant = 'default' }) {
           />
           
           {/* Gradient overlay */}
-          <div className="absolute inset-0 bg-gradient-to-t from-dark-bg via-dark-bg/50 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-slate via-slate/50 to-transparent" />
           
           {/* Issue icon badge */}
           <div className="absolute top-3 left-3">
             <motion.div
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
-              className="w-10 h-10 rounded-xl flex items-center justify-center text-xl"
-              style={{
-                background: 'rgba(17, 17, 24, 0.9)',
-                backdropFilter: 'blur(10px)',
-                border: '1px solid rgba(255, 255, 255, 0.1)',
-              }}
+              className="w-10 h-10 flex items-center justify-center text-xl bg-cream border border-cream-muted"
             >
               {issueIcons[issue.type] || '📍'}
             </motion.div>
@@ -98,14 +79,8 @@ export default function IssueCard({ issue, onClick, variant = 'default' }) {
 
           {/* Time ago badge */}
           <div className="absolute bottom-3 right-3">
-            <div 
-              className="flex items-center gap-1.5 px-2 py-1 rounded-lg text-xs text-gray-300"
-              style={{
-                background: 'rgba(17, 17, 24, 0.9)',
-                backdropFilter: 'blur(10px)',
-              }}
-            >
-              <Clock className="w-3 h-3" />
+            <div className="flex items-center gap-1.5 px-2 py-1 bg-slate text-cream text-xs font-display">
+              <Clock className="w-3 h-3" strokeWidth={2} />
               {timeAgo(issue.createdAt)}
             </div>
           </div>
@@ -120,29 +95,29 @@ export default function IssueCard({ issue, onClick, variant = 'default' }) {
 
           {/* Description preview */}
           {!isCompact && (
-            <p className="text-gray-300 text-sm line-clamp-2 mb-3">
+            <p className="text-slate-muted font-body text-sm line-clamp-2 mb-3">
               {issue.description}
             </p>
           )}
 
           {/* Location */}
-          <div className="flex items-center gap-2 text-gray-400">
-            <MapPin className="w-3.5 h-3.5 text-neon-blue shrink-0" />
-            <span className="text-xs truncate">{issue.location.address}</span>
+          <div className="flex items-center gap-2 text-slate-muted">
+            <MapPin className="w-3.5 h-3.5 text-accent shrink-0" strokeWidth={2} />
+            <span className="text-xs font-display truncate">{issue.location.address}</span>
           </div>
 
           {/* Footer */}
-          <div className="flex items-center justify-between mt-4 pt-3 border-t border-white/5">
-            <span className="text-xs text-gray-500">
-              #{issue.id.split('_')[1]}
+          <div className="flex items-center justify-between mt-4 pt-3 border-t border-cream-muted">
+            <span className="text-xs font-display text-slate-muted uppercase tracking-wider">
+              #{issue.id.slice(-6)}
             </span>
             <motion.div
               initial={{ opacity: 0, x: -10 }}
               whileHover={{ opacity: 1, x: 0 }}
-              className="flex items-center gap-1 text-neon-blue text-xs opacity-0 group-hover:opacity-100 transition-opacity"
+              className="flex items-center gap-1 text-accent font-display text-xs uppercase tracking-wide opacity-0 group-hover:opacity-100 transition-opacity"
             >
-              View details
-              <ExternalLink className="w-3 h-3" />
+              View
+              <ExternalLink className="w-3 h-3" strokeWidth={2.5} />
             </motion.div>
           </div>
         </div>
@@ -152,7 +127,7 @@ export default function IssueCard({ issue, onClick, variant = 'default' }) {
           initial={{ scaleX: 0 }}
           whileHover={{ scaleX: 1 }}
           transition={{ duration: 0.3 }}
-          className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-neon-blue via-neon-purple to-neon-blue"
+          className="absolute bottom-0 left-0 right-0 h-0.5 bg-accent"
           style={{ transformOrigin: 'left' }}
         />
       </div>

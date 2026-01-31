@@ -40,16 +40,9 @@ export default function AIAnalysisPanel({
       animate={{ opacity: 1, y: 0 }}
       className={`relative overflow-hidden ${className}`}
     >
-      {/* Glassmorphism card */}
+      {/* Paper card */}
       <div 
-        className="relative rounded-2xl p-6 border border-white/10"
-        style={{
-          background: 'rgba(17, 17, 24, 0.8)',
-          backdropFilter: 'blur(20px)',
-          boxShadow: isAnalyzing 
-            ? '0 0 40px rgba(0, 212, 255, 0.15), inset 0 0 60px rgba(0, 212, 255, 0.05)' 
-            : '0 8px 32px rgba(0, 0, 0, 0.3)',
-        }}
+        className="relative p-6 bg-cream border border-cream-muted shadow-paper"
       >
         {/* Animated border glow during analysis */}
         {isAnalyzing && (
@@ -58,10 +51,10 @@ export default function AIAnalysisPanel({
             initial={{ opacity: 0.8 }}
             animate={{ opacity: 0 }}
             transition={{ duration: 2 }}
-            className="absolute inset-0 rounded-2xl pointer-events-none"
+            className="absolute inset-0 pointer-events-none"
             style={{
-              border: '1px solid rgba(0, 212, 255, 0.5)',
-              boxShadow: '0 0 30px rgba(0, 212, 255, 0.3), inset 0 0 30px rgba(0, 212, 255, 0.1)',
+              border: '2px solid rgba(59, 125, 216, 0.5)',
+              boxShadow: '0 0 20px rgba(59, 125, 216, 0.2)',
             }}
           />
         )}
@@ -72,21 +65,21 @@ export default function AIAnalysisPanel({
             <motion.div
               animate={isAnalyzing ? { rotate: 360 } : {}}
               transition={{ duration: 3, repeat: isAnalyzing ? Infinity : 0, ease: 'linear' }}
-              className="w-10 h-10 rounded-xl bg-gradient-to-br from-neon-blue/20 to-neon-purple/20 flex items-center justify-center"
+              className="w-10 h-10 bg-blueprint/10 flex items-center justify-center"
             >
-              <Brain className="w-5 h-5 text-neon-blue" />
+              <Brain className="w-5 h-5 text-blueprint" />
             </motion.div>
             {isAnalyzing && (
               <motion.div
                 animate={{ scale: [1, 1.5, 1], opacity: [0.5, 0, 0.5] }}
                 transition={{ duration: 1.5, repeat: Infinity }}
-                className="absolute inset-0 rounded-xl bg-neon-blue/30"
+                className="absolute inset-0 bg-blueprint/30"
               />
             )}
           </div>
           <div>
-            <h3 className="text-lg font-semibold text-white">AI Analysis</h3>
-            <p className="text-xs text-gray-400">
+            <h3 className="font-display text-lg font-semibold text-slate">AI Analysis</h3>
+            <p className="text-xs text-slate-muted font-body">
               {isAnalyzing ? 'Processing...' : 'Analysis complete'}
             </p>
           </div>
@@ -112,19 +105,19 @@ export default function AIAnalysisPanel({
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: stage.delay }}
-                  className="flex items-center gap-3 p-3 rounded-xl bg-dark-card/50"
+                  className="flex items-center gap-3 p-3 bg-cream-dark/50 border border-cream-muted"
                 >
                   <motion.div
                     animate={{ opacity: [0.5, 1, 0.5] }}
                     transition={{ duration: 1.5, repeat: Infinity, delay: stage.delay }}
                   >
-                    <stage.icon className="w-4 h-4 text-neon-blue" />
+                    <stage.icon className="w-4 h-4 text-blueprint" />
                   </motion.div>
-                  <span className="text-sm text-gray-300">{stage.label}</span>
+                  <span className="text-sm text-slate font-body">{stage.label}</span>
                   <motion.div
                     animate={{ rotate: 360 }}
                     transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-                    className="ml-auto w-4 h-4 border-2 border-neon-blue/30 border-t-neon-blue rounded-full"
+                    className="ml-auto w-4 h-4 border-2 border-blueprint/30 border-t-blueprint rounded-full"
                   />
                 </motion.div>
               ))}
@@ -137,46 +130,45 @@ export default function AIAnalysisPanel({
               className="space-y-5"
             >
               {/* Detected Issue Section */}
-              <div className="p-4 rounded-xl bg-dark-card/50 border border-dark-border">
+              <div className="p-4 bg-cream-dark/30 border border-cream-muted">
                 <div className="flex items-center gap-2 mb-3">
-                  <Eye className="w-4 h-4 text-neon-blue" />
-                  <span className="text-sm font-medium text-gray-400">Detected Issue</span>
+                  <Eye className="w-4 h-4 text-blueprint" />
+                  <span className="font-display text-sm font-medium text-slate-muted uppercase tracking-wider">Detected Issue</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <IssueTypeTag type={analysisResult?.issueType || 'pothole'} size="lg" />
                   <div className="text-right">
-                    <div className="text-2xl font-bold text-neon-blue">
+                    <div className="font-display text-2xl font-bold text-blueprint">
                       {((analysisResult?.confidence || 0.89) * 100).toFixed(0)}%
                     </div>
-                    <div className="text-xs text-gray-500">Confidence</div>
+                    <div className="font-display text-xs text-slate-muted uppercase tracking-wider">Confidence</div>
                   </div>
                 </div>
                 
                 {/* Confidence bar */}
-                <div className="mt-3 h-2 bg-dark-border rounded-full overflow-hidden">
+                <div className="mt-3 h-2 bg-cream-muted overflow-hidden">
                   <motion.div
                     initial={{ width: 0 }}
                     animate={{ width: `${(analysisResult?.confidence || 0.89) * 100}%` }}
                     transition={{ duration: 1, delay: 0.3 }}
-                    className="h-full bg-gradient-to-r from-neon-blue to-neon-purple rounded-full"
-                    style={{ boxShadow: '0 0 10px rgba(0, 212, 255, 0.5)' }}
+                    className="h-full bg-gradient-to-r from-blueprint to-accent"
                   />
                 </div>
               </div>
 
               {/* AI Reasoning Section */}
-              <div className="p-4 rounded-xl bg-dark-card/50 border border-dark-border">
+              <div className="p-4 bg-cream-dark/30 border border-cream-muted">
                 <div className="flex items-center gap-2 mb-3">
-                  <Lightbulb className="w-4 h-4 text-neon-purple" />
-                  <span className="text-sm font-medium text-gray-400">AI Reasoning</span>
+                  <Lightbulb className="w-4 h-4 text-accent" />
+                  <span className="font-display text-sm font-medium text-slate-muted uppercase tracking-wider">AI Reasoning</span>
                 </div>
-                <p className="text-sm text-gray-300 leading-relaxed">
+                <p className="text-sm text-slate font-body leading-relaxed">
                   {analysisResult?.reasoning || 
                     'Based on visual analysis, the image shows road surface damage consistent with a pothole. Key indicators include: irregular edges, depth variation, and surrounding asphalt deterioration. The location and size suggest medium priority for repair.'}
                 </p>
                 <div className="flex flex-wrap gap-2 mt-3">
                   {(analysisResult?.keywords || ['road damage', 'asphalt', 'pothole', 'infrastructure']).map((keyword, i) => (
-                    <span key={i} className="px-2 py-1 rounded-lg bg-neon-purple/10 text-xs text-neon-purple">
+                    <span key={i} className="px-2 py-1 bg-accent/10 font-display text-xs text-accent font-medium">
                       {keyword}
                     </span>
                   ))}
@@ -184,15 +176,15 @@ export default function AIAnalysisPanel({
               </div>
 
               {/* Suggested Description Section */}
-              <div className="p-4 rounded-xl bg-dark-card/50 border border-dark-border">
+              <div className="p-4 bg-cream-dark/30 border border-cream-muted">
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2">
-                    <Sparkles className="w-4 h-4 text-neon-green" />
-                    <span className="text-sm font-medium text-gray-400">Suggested Description</span>
+                    <Sparkles className="w-4 h-4 text-success" />
+                    <span className="font-display text-sm font-medium text-slate-muted uppercase tracking-wider">Suggested Description</span>
                   </div>
                   <button
                     onClick={() => setIsEditingDescription(!isEditingDescription)}
-                    className="flex items-center gap-1 text-xs text-neon-blue hover:text-neon-blue/80 transition-colors"
+                    className="flex items-center gap-1 font-display text-xs text-blueprint hover:text-blueprint/80 transition-colors"
                   >
                     <Edit3 className="w-3 h-3" />
                     {isEditingDescription ? 'Cancel' : 'Edit'}
@@ -205,28 +197,28 @@ export default function AIAnalysisPanel({
                       value={editedDescription}
                       onChange={(e) => setEditedDescription(e.target.value)}
                       rows={4}
-                      className="w-full px-4 py-3 rounded-xl bg-dark-bg border border-dark-border focus:border-neon-blue/50 focus:outline-none text-white text-sm resize-none"
+                      className="w-full px-4 py-3 bg-cream border border-cream-muted focus:border-blueprint/50 focus:outline-none text-slate font-body text-sm resize-none"
                       placeholder="Edit the AI-generated description..."
                     />
                     <button
                       onClick={handleSaveDescription}
-                      className="flex items-center gap-2 px-4 py-2 rounded-lg bg-neon-blue/20 text-neon-blue text-sm font-medium hover:bg-neon-blue/30 transition-colors"
+                      className="flex items-center gap-2 px-4 py-2 bg-blueprint/10 text-blueprint font-display text-sm font-medium hover:bg-blueprint/20 transition-colors"
                     >
                       <Check className="w-4 h-4" />
                       Save Changes
                     </button>
                   </div>
                 ) : (
-                  <p className="text-sm text-gray-300 leading-relaxed">
+                  <p className="text-sm text-slate font-body leading-relaxed">
                     {description || 'AI-generated description will appear here after analysis.'}
                   </p>
                 )}
               </div>
 
               {/* Disclaimer */}
-              <div className="flex items-start gap-2 p-3 rounded-xl bg-yellow-500/10 border border-yellow-500/20">
-                <AlertCircle className="w-4 h-4 text-yellow-500 shrink-0 mt-0.5" />
-                <p className="text-xs text-yellow-500/80">
+              <div className="flex items-start gap-2 p-3 bg-warning/10 border-l-4 border-warning">
+                <AlertCircle className="w-4 h-4 text-warning shrink-0 mt-0.5" />
+                <p className="text-xs text-warning font-body">
                   AI analysis is for assistance only. Please verify details before submission.
                 </p>
               </div>

@@ -56,8 +56,8 @@ export default function CityImpactPanel({ className = '' }) {
           <Zap className="w-5 h-5 text-neon-blue" />
         </div>
         <div>
-          <h2 className="text-lg font-semibold text-white">City Impact</h2>
-          <p className="text-xs text-gray-400">Real-time community statistics</p>
+          <h2 className="text-lg font-semibold text-slate">City Impact</h2>
+          <p className="text-xs text-slate-muted">Real-time community statistics</p>
         </div>
       </div>
 
@@ -121,17 +121,17 @@ export default function CityImpactPanel({ className = '' }) {
                   <motion.span
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
-                    className="text-2xl font-bold text-white"
+                    className="text-2xl font-bold text-slate"
                   >
                     {typeof stat.value === 'number' ? stat.value.toLocaleString() : stat.value}
                   </motion.span>
                   {stat.suffix && (
-                    <span className="text-sm text-gray-400">{stat.suffix}</span>
+                    <span className="text-sm text-slate-muted">{stat.suffix}</span>
                   )}
                 </div>
 
                 {/* Label */}
-                <p className="text-xs text-gray-400 mt-1">{stat.label}</p>
+                <p className="text-xs text-slate-muted mt-1">{stat.label}</p>
 
                 {/* Trend */}
                 <div 
@@ -171,7 +171,7 @@ export default function CityImpactPanel({ className = '' }) {
           transition={{ duration: 2, repeat: Infinity }}
           className="w-2 h-2 rounded-full bg-neon-green"
         />
-        <span className="text-xs text-gray-500">Live data • Updated every 30 seconds</span>
+        <span className="text-xs text-slate-muted">Live data • Updated every 30 seconds</span>
       </div>
     </motion.div>
   )

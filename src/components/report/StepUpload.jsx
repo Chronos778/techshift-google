@@ -110,10 +110,10 @@ export default function StepUpload({ reportData, updateReportData, onNext }) {
   return (
     <div className="space-y-6">
       <Card hover={false} className="p-8">
-        <h2 className="text-xl font-semibold text-white mb-2">
+        <h2 className="font-display text-xl font-semibold text-slate mb-2">
           Capture or Upload Image
         </h2>
-        <p className="text-gray-400 mb-6">
+        <p className="text-slate-muted font-body mb-6">
           Take a photo or upload an image of the city issue you want to report. Our AI will analyze it to verify the issue type.
         </p>
 
@@ -126,11 +126,11 @@ export default function StepUpload({ reportData, updateReportData, onNext }) {
             <img
               src={reportData.imagePreview}
               alt="Issue preview"
-              className="w-full h-80 object-cover rounded-xl"
+              className="w-full h-80 object-cover border border-cream-muted"
             />
             <button
               onClick={removeImage}
-              className="absolute top-3 right-3 p-2 rounded-full bg-dark-bg/80 text-white hover:bg-red-500/80 transition-colors"
+              className="absolute top-3 right-3 p-2 bg-cream/80 backdrop-blur-sm text-slate hover:bg-danger hover:text-cream transition-colors"
             >
               <X className="w-5 h-5" />
             </button>
@@ -141,11 +141,11 @@ export default function StepUpload({ reportData, updateReportData, onNext }) {
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
             className={`
-              relative border-2 border-dashed rounded-2xl p-12 text-center
+              relative border-2 border-dashed p-12 text-center
               transition-all duration-300 cursor-pointer
               ${isDragging
-                ? 'border-neon-blue bg-neon-blue/10'
-                : 'border-dark-border hover:border-neon-blue/50 hover:bg-dark-card/50'
+                ? 'border-blueprint bg-blueprint/5'
+                : 'border-cream-muted hover:border-blueprint/50 hover:bg-cream-dark/30'
               }
             `}
           >
@@ -159,17 +159,17 @@ export default function StepUpload({ reportData, updateReportData, onNext }) {
             <div className="flex flex-col items-center">
               <motion.div
                 animate={{ y: isDragging ? -10 : 0 }}
-                className="w-20 h-20 rounded-2xl bg-gradient-to-br from-neon-blue/20 to-neon-purple/20 flex items-center justify-center mb-6"
+                className="w-20 h-20 bg-blueprint/10 flex items-center justify-center mb-6"
               >
-                <Upload className="w-10 h-10 text-neon-blue" />
+                <Upload className="w-10 h-10 text-blueprint" />
               </motion.div>
 
-              <p className="text-lg font-medium text-white mb-2">
+              <p className="font-display text-lg font-medium text-slate mb-2">
                 {isDragging ? 'Drop your image here' : 'Drag and drop your image'}
               </p>
-              <p className="text-gray-400 mb-4">or click to browse</p>
+              <p className="text-slate-muted font-body mb-4">or click to browse</p>
 
-              <div className="flex items-center gap-2 text-sm text-gray-500">
+              <div className="flex items-center gap-2 text-sm text-slate-muted font-body">
                 <Image className="w-4 h-4" />
                 <span>Supports JPG, PNG, HEIC up to 10MB</span>
               </div>
@@ -180,36 +180,36 @@ export default function StepUpload({ reportData, updateReportData, onNext }) {
         {/* Mobile camera option */}
         <div className="mt-6 flex flex-col gap-3">
           {uploadError && (
-            <div className="flex items-center gap-2 p-3 bg-red-500/10 border border-red-500/30 rounded-lg">
-              <AlertCircle className="w-5 h-5 text-red-400 shrink-0" />
-              <p className="text-sm text-red-300">{uploadError}</p>
+            <div className="flex items-center gap-2 p-3 bg-danger/10 border border-danger/30">
+              <AlertCircle className="w-5 h-5 text-danger shrink-0" />
+              <p className="text-sm text-danger font-body">{uploadError}</p>
             </div>
           )}
 
           {isUploading && (
-            <div className="flex items-center gap-2 p-3 bg-blue-500/10 border border-blue-500/30 rounded-lg">
+            <div className="flex items-center gap-2 p-3 bg-blueprint/10 border border-blueprint/30">
               <motion.div
                 animate={{ rotate: 360 }}
                 transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
                 className="w-4 h-4"
               >
-                <Upload className="w-4 h-4 text-blue-400" />
+                <Upload className="w-4 h-4 text-blueprint" />
               </motion.div>
-              <p className="text-sm text-blue-300">Uploading image...</p>
+              <p className="text-sm text-blueprint font-body">Uploading image...</p>
             </div>
 
           )}
 
           {/* Location Status */}
           {(isLocating || reportData.location) && (
-            <div className={`flex items-center gap-2 p-3 rounded-lg border ${reportData.location ? 'bg-green-500/10 border-green-500/30' : 'bg-blue-500/10 border-blue-500/30'}`}>
-              <MapPin className={`w-5 h-5 ${reportData.location ? 'text-green-400' : 'text-blue-400'}`} />
+            <div className={`flex items-center gap-2 p-3 border ${reportData.location ? 'bg-success/10 border-success/30' : 'bg-blueprint/10 border-blueprint/30'}`}>
+              <MapPin className={`w-5 h-5 ${reportData.location ? 'text-success' : 'text-blueprint'}`} />
               <div className="flex-1">
-                <p className={`text-sm font-medium ${reportData.location ? 'text-green-300' : 'text-blue-300'}`}>
+                <p className={`text-sm font-display font-medium ${reportData.location ? 'text-success' : 'text-blueprint'}`}>
                   {isLocating ? "Detecting location..." : "Location captured"}
                 </p>
                 {reportData.location?.address && (
-                  <p className="text-xs text-gray-400 truncate max-w-[250px]">
+                  <p className="text-xs text-slate-muted font-body truncate max-w-[250px]">
                     {reportData.location.address}
                   </p>
                 )}
@@ -226,9 +226,9 @@ export default function StepUpload({ reportData, updateReportData, onNext }) {
               disabled={isUploading}
               className="hidden"
             />
-            <div className={`flex items-center justify-center gap-2 px-4 py-4 rounded-xl border border-dark-border hover:border-neon-blue/50 transition-colors min-h-[44px] ${isUploading ? 'opacity-50 cursor-not-allowed' : ''}`}>
-              <Camera className="w-5 h-5 text-neon-blue" />
-              <span className="text-white font-medium">Take Photo</span>
+            <div className={`flex items-center justify-center gap-2 px-4 py-4 border border-cream-muted hover:border-blueprint/50 transition-colors min-h-[44px] ${isUploading ? 'opacity-50 cursor-not-allowed' : ''}`}>
+              <Camera className="w-5 h-5 text-blueprint" />
+              <span className="text-slate font-display font-medium">Take Photo</span>
             </div>
           </label>
 
@@ -239,9 +239,9 @@ export default function StepUpload({ reportData, updateReportData, onNext }) {
               onChange={handleInputChange}
               className="hidden"
             />
-            <div className="flex items-center justify-center gap-2 px-4 py-4 rounded-xl border border-dark-border hover:border-neon-blue/50 transition-colors min-h-[44px]">
-              <Upload className="w-5 h-5 text-neon-purple" />
-              <span className="text-white font-medium">Upload File</span>
+            <div className="flex items-center justify-center gap-2 px-4 py-4 border border-cream-muted hover:border-accent/50 transition-colors min-h-[44px]">
+              <Upload className="w-5 h-5 text-accent" />
+              <span className="text-slate font-display font-medium">Upload File</span>
             </div>
           </label>
         </div>

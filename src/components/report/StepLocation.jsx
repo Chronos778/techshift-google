@@ -47,10 +47,10 @@ export default function StepLocation({ reportData, updateReportData, onNext, onB
   return (
     <div className="space-y-6">
       <Card hover={false} className="p-8">
-        <h2 className="text-xl font-semibold text-white mb-2">
+        <h2 className="font-display text-xl font-semibold text-slate mb-2">
           Pin the Location
         </h2>
-        <p className="text-gray-400 mb-6">
+        <p className="text-slate-muted font-body mb-6">
           Help city officials locate this issue. We'll use your location and map it on the city dashboard.
         </p>
 
@@ -67,26 +67,26 @@ export default function StepLocation({ reportData, updateReportData, onNext, onB
         </Button>
 
         {/* Mock map */}
-        <div className="relative rounded-2xl overflow-hidden bg-dark-card border border-dark-border mb-6">
+        <div className="relative overflow-hidden bg-cream-dark border border-cream-muted mb-6">
           {/* TODO: Google Maps JS API + Geolocation */}
           <div className="h-64 relative">
-            {/* Mock map background with grid */}
+            {/* Mock map background with blueprint grid */}
             <div
               className="absolute inset-0"
               style={{
                 background: `
-                  linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px),
-                  linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px),
-                  linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 50%, #0f3460 100%)
+                  linear-gradient(rgba(59,125,216,0.08) 1px, transparent 1px),
+                  linear-gradient(90deg, rgba(59,125,216,0.08) 1px, transparent 1px),
+                  linear-gradient(135deg, #F7F5F0 0%, #EDE8DE 50%, #E8E3D9 100%)
                 `,
                 backgroundSize: '30px 30px, 30px 30px, 100% 100%',
               }}
             />
 
             {/* Mock roads */}
-            <div className="absolute top-1/2 left-0 right-0 h-2 bg-gray-700/50" />
-            <div className="absolute top-0 bottom-0 left-1/3 w-2 bg-gray-700/50" />
-            <div className="absolute top-0 bottom-0 right-1/4 w-1 bg-gray-700/30" />
+            <div className="absolute top-1/2 left-0 right-0 h-2 bg-slate/10" />
+            <div className="absolute top-0 bottom-0 left-1/3 w-2 bg-slate/10" />
+            <div className="absolute top-0 bottom-0 right-1/4 w-1 bg-slate/5" />
 
             {/* Location pin */}
             {reportData.location && (
@@ -96,14 +96,14 @@ export default function StepLocation({ reportData, updateReportData, onNext, onB
                 className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-full"
               >
                 <div className="relative">
-                  <div className="w-10 h-10 rounded-full bg-neon-blue flex items-center justify-center shadow-lg shadow-neon-blue/50">
-                    <MapPin className="w-5 h-5 text-white" />
+                  <div className="w-10 h-10 bg-accent flex items-center justify-center shadow-lg">
+                    <MapPin className="w-5 h-5 text-cream" />
                   </div>
-                  <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-3 h-3 bg-neon-blue rotate-45" />
+                  <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-3 h-3 bg-accent rotate-45" />
                   <motion.div
                     animate={{ scale: [1, 1.5, 1], opacity: [0.5, 0, 0.5] }}
                     transition={{ duration: 2, repeat: Infinity }}
-                    className="absolute inset-0 rounded-full bg-neon-blue/30"
+                    className="absolute inset-0 bg-accent/30"
                   />
                 </div>
               </motion.div>
@@ -111,41 +111,41 @@ export default function StepLocation({ reportData, updateReportData, onNext, onB
 
             {/* Map overlay */}
             {!reportData.location && (
-              <div className="absolute inset-0 flex items-center justify-center bg-dark-bg/50 backdrop-blur-sm">
+              <div className="absolute inset-0 flex items-center justify-center bg-cream/50 backdrop-blur-sm">
                 <div className="text-center">
-                  <MapIcon className="w-12 h-12 text-gray-600 mx-auto mb-3" />
-                  <p className="text-gray-500">Click "Detect My Location" to pin the issue</p>
+                  <MapIcon className="w-12 h-12 text-slate-muted mx-auto mb-3" />
+                  <p className="text-slate-muted font-body">Click "Detect My Location" to pin the issue</p>
                 </div>
               </div>
             )}
           </div>
 
           {/* Map attribution mock */}
-          <div className="absolute bottom-2 right-2 text-xs text-gray-600 bg-dark-bg/80 px-2 py-1 rounded">
+          <div className="absolute bottom-2 right-2 text-xs text-slate-muted bg-cream/80 px-2 py-1 font-body">
             © Google Maps
           </div>
         </div>
 
         {/* Address input */}
         <div>
-          <label className="block text-sm text-gray-400 mb-2">
+          <label className="block font-display text-sm text-slate-muted mb-2 uppercase tracking-wider">
             Address / Location Details
           </label>
           <div className="relative">
-            <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+            <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-muted" />
             <input
               type="text"
               value={manualAddress}
               onChange={handleAddressChange}
               placeholder="Enter address or cross-streets..."
-              className="w-full pl-12 pr-4 py-3 rounded-xl bg-dark-card border border-dark-border focus:border-neon-blue/50 focus:outline-none text-white placeholder-gray-600"
+              className="w-full pl-12 pr-4 py-3 bg-cream border border-cream-muted focus:border-blueprint/50 focus:outline-none text-slate font-body placeholder-slate-muted"
             />
           </div>
           {reportData.location && reportData.location.lat && reportData.location.lng && (
             <motion.p
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="mt-2 text-sm text-gray-500"
+              className="mt-2 text-sm text-slate-muted font-mono"
             >
               Coordinates: {reportData.location.lat.toFixed(4)}, {reportData.location.lng.toFixed(4)}
             </motion.p>

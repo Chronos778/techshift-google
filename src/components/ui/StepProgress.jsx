@@ -12,47 +12,35 @@ export default function StepProgress({ currentStep, className = '' }) {
   return (
     <div className={`w-full ${className}`}>
       {/* Step counter */}
-      <div className="text-center mb-4">
-        <motion.span
+      <div className="text-center mb-6">
+        <motion.div
           key={currentStep}
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-sm text-gray-400"
+          className="inline-flex items-center gap-3"
         >
-          Step <span className="text-neon-blue font-semibold">{currentStep}</span> of {steps.length}
-        </motion.span>
+          <div className="w-10 h-10 bg-accent text-cream font-display font-bold flex items-center justify-center">
+            {currentStep}
+          </div>
+          <span className="font-display text-sm uppercase tracking-wider text-slate-muted">
+            of {steps.length} steps
+          </span>
+        </motion.div>
       </div>
 
       {/* Progress bar container */}
       <div className="relative">
         {/* Background track */}
-        <div className="absolute top-6 left-0 right-0 h-1 bg-dark-border rounded-full" />
+        <div className="absolute top-6 left-0 right-0 h-0.5 bg-cream-muted" />
         
         {/* Animated progress fill */}
         <motion.div
-          className="absolute top-6 left-0 h-1 bg-gradient-to-r from-neon-blue via-neon-purple to-neon-blue rounded-full"
+          className="absolute top-6 left-0 h-0.5 bg-accent"
           initial={{ width: '0%' }}
           animate={{ 
             width: `${((currentStep - 1) / (steps.length - 1)) * 100}%`,
           }}
           transition={{ duration: 0.5, ease: 'easeInOut' }}
-          style={{
-            boxShadow: '0 0 20px rgba(0, 212, 255, 0.5)',
-          }}
-        />
-
-        {/* Glowing particle effect on progress */}
-        <motion.div
-          className="absolute top-5 h-3 w-3 rounded-full bg-neon-blue"
-          initial={{ left: '0%' }}
-          animate={{ 
-            left: `${((currentStep - 1) / (steps.length - 1)) * 100}%`,
-          }}
-          transition={{ duration: 0.5, ease: 'easeInOut' }}
-          style={{
-            boxShadow: '0 0 15px rgba(0, 212, 255, 0.8), 0 0 30px rgba(0, 212, 255, 0.4)',
-            transform: 'translateX(-50%)',
-          }}
         />
 
         {/* Steps */}
@@ -68,38 +56,22 @@ export default function StepProgress({ currentStep, className = '' }) {
                 {/* Step circle */}
                 <motion.div
                   animate={{
-                    scale: isCurrent ? 1.15 : 1,
+                    scale: isCurrent ? 1.1 : 1,
                   }}
                   transition={{ duration: 0.3 }}
                   className="relative"
                 >
-                  {/* Glow ring for current step */}
-                  {isCurrent && (
-                    <motion.div
-                      animate={{ 
-                        scale: [1, 1.3, 1],
-                        opacity: [0.5, 0.2, 0.5],
-                      }}
-                      transition={{ duration: 2, repeat: Infinity }}
-                      className="absolute inset-0 rounded-full bg-neon-blue"
-                      style={{ filter: 'blur(8px)' }}
-                    />
-                  )}
-                  
                   <div
                     className={`
-                      relative w-12 h-12 rounded-full flex items-center justify-center
+                      relative w-12 h-12 flex items-center justify-center
                       transition-all duration-300 z-10 border-2
                       ${isCompleted 
-                        ? 'bg-neon-blue border-neon-blue text-dark-bg' 
+                        ? 'bg-accent border-accent text-cream' 
                         : isCurrent 
-                          ? 'bg-dark-bg border-neon-blue text-neon-blue' 
-                          : 'bg-dark-card border-dark-border text-gray-500'
+                          ? 'bg-cream border-accent text-accent' 
+                          : 'bg-cream-dark border-cream-muted text-slate-muted'
                       }
                     `}
-                    style={isCurrent ? {
-                      boxShadow: '0 0 25px rgba(0, 212, 255, 0.4)',
-                    } : {}}
                   >
                     {isCompleted ? (
                       <motion.div
@@ -107,23 +79,23 @@ export default function StepProgress({ currentStep, className = '' }) {
                         animate={{ scale: 1 }}
                         transition={{ type: 'spring', stiffness: 500 }}
                       >
-                        <Check className="w-5 h-5" />
+                        <Check className="w-5 h-5" strokeWidth={3} />
                       </motion.div>
                     ) : (
-                      <Icon className="w-5 h-5" />
+                      <Icon className="w-5 h-5" strokeWidth={2} />
                     )}
                   </div>
                 </motion.div>
 
                 {/* Step label */}
                 <motion.div
-                  animate={{ opacity: isCurrent ? 1 : 0.6 }}
-                  className="mt-3 text-center"
+                  animate={{ opacity: isCurrent ? 1 : 0.7 }}
+                  className="mt-4 text-center"
                 >
-                  <p className={`text-sm font-medium ${isCurrent ? 'text-neon-blue' : isCompleted ? 'text-white' : 'text-gray-500'}`}>
+                  <p className={`font-display text-sm font-semibold uppercase tracking-wide ${isCurrent ? 'text-accent' : isCompleted ? 'text-slate' : 'text-slate-muted'}`}>
                     {step.name}
                   </p>
-                  <p className="text-xs text-gray-500 mt-0.5 hidden sm:block">
+                  <p className="font-body text-xs text-slate-muted mt-1 hidden sm:block">
                     {step.description}
                   </p>
                 </motion.div>

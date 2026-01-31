@@ -6,7 +6,7 @@ import { analyzeImageWithQwen } from '../../services/qubrid'
 
 const analysisStages = [
   { id: 'upload', label: 'Processing image...', icon: Eye },
-  { id: 'qwen', label: 'Analyzing with Qwen AI...', icon: Brain },
+  { id: 'analyze', label: 'AI analyzing issue...', icon: Brain },
   { id: 'complete', label: 'Analysis complete!', icon: Sparkles },
 ]
 
@@ -37,12 +37,12 @@ export default function StepAnalysis({ reportData, updateReportData, onNext, onB
         setCurrentStage(0)
         await new Promise((resolve) => setTimeout(resolve, 800))
 
-        // Stage 2: Qwen Analysis
+        // Stage 2: AI Analysis
         setCurrentStage(1)
-        console.log('Analyzing image with Qwen AI:', reportData.imageUrl)
+        console.log('Analyzing image with AI:', reportData.imageUrl)
 
-        const qwenResult = await analyzeImageWithQwen(reportData.imageUrl)
-        console.log('Qwen result:', qwenResult)
+        const analysisResult = await analyzeImageWithQwen(reportData.imageUrl)
+        console.log('Analysis result:', analysisResult)
 
         // Stage 3: Complete
         setCurrentStage(2)
@@ -50,12 +50,12 @@ export default function StepAnalysis({ reportData, updateReportData, onNext, onB
 
         updateReportData({
           analysisResult: {
-            qwen: qwenResult,
+            ai: analysisResult,
           },
-          issueType: qwenResult.issueType?.toLowerCase().replace(/\s+/g, '-') || 'other',
-          description: qwenResult.description,
+          issueType: analysisResult.issueType?.toLowerCase().replace(/\s+/g, '-') || 'other',
+          description: analysisResult.description,
         })
-        setEditedDescription(qwenResult.description)
+        setEditedDescription(analysisResult.description)
         setIsAnalyzing(false)
       } catch (error) {
         console.error('Analysis error:', error)
@@ -82,19 +82,19 @@ export default function StepAnalysis({ reportData, updateReportData, onNext, onB
       <Card hover={false} className="p-8">
         <div className="flex flex-col items-center py-12">
           {/* Image preview */}
-          <div className="relative w-48 h-48 rounded-2xl overflow-hidden mb-8">
+          <div className="relative w-48 h-48 overflow-hidden mb-8 border border-cream-muted">
             <img
               src={reportData.imagePreview}
               alt="Analyzing"
               className="w-full h-full object-cover"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-dark-bg/80 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-cream/80 to-transparent" />
 
             {/* Scanning animation */}
             <motion.div
               animate={{ y: ['0%', '100%', '0%'] }}
               transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
-              className="absolute left-0 right-0 h-1 bg-gradient-to-r from-transparent via-neon-blue to-transparent"
+              className="absolute left-0 right-0 h-1 bg-gradient-to-r from-transparent via-blueprint to-transparent"
             />
           </div>
 
@@ -112,17 +112,17 @@ export default function StepAnalysis({ reportData, updateReportData, onNext, onB
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: index * 0.1 }}
                   className={`
-                    flex items-center gap-3 p-3 rounded-xl transition-colors
-                    ${isCurrent ? 'bg-neon-blue/10 border border-neon-blue/30' : ''}
+                    flex items-center gap-3 p-3 transition-colors
+                    ${isCurrent ? 'bg-blueprint/10 border border-blueprint/30' : ''}
                     ${isComplete ? 'opacity-60' : ''}
                   `}
                 >
                   <div
                     className={`
-                      w-8 h-8 rounded-full flex items-center justify-center
-                      ${isComplete ? 'bg-neon-green text-dark-bg' : ''}
-                      ${isCurrent ? 'bg-neon-blue/20 text-neon-blue' : ''}
-                      ${!isComplete && !isCurrent ? 'bg-dark-border text-gray-500' : ''}
+                      w-8 h-8 flex items-center justify-center
+                      ${isComplete ? 'bg-success text-cream' : ''}
+                      ${isCurrent ? 'bg-blueprint/20 text-blueprint' : ''}
+                      ${!isComplete && !isCurrent ? 'bg-cream-muted text-slate-muted' : ''}
                     `}
                   >
                     {isComplete ? (
@@ -140,8 +140,8 @@ export default function StepAnalysis({ reportData, updateReportData, onNext, onB
                   </div>
                   <span
                     className={`
-                      text-sm font-medium
-                      ${isCurrent ? 'text-neon-blue' : isComplete ? 'text-gray-400' : 'text-gray-500'}
+                      text-sm font-display font-medium
+                      ${isCurrent ? 'text-blueprint' : isComplete ? 'text-slate-muted' : 'text-slate-muted/70'}
                     `}
                   >
                     {stage.label}
@@ -151,7 +151,7 @@ export default function StepAnalysis({ reportData, updateReportData, onNext, onB
             })}
           </div>
 
-          <p className="text-center text-gray-400 text-sm">
+          <p className="text-center text-slate-muted font-body text-sm">
             Using Qwen AI (Qubrid) to detect objects and generate smart descriptions
           </p>
         </div>
@@ -176,7 +176,7 @@ export default function StepAnalysis({ reportData, updateReportData, onNext, onB
 
       {/* Issue Type Selection */}
       <Card hover={false} className="p-6">
-        <label className="block text-sm text-gray-400 mb-3">
+        <label className="block font-display text-sm text-slate-muted mb-3 uppercase tracking-wider">
           Confirm or Change Issue Type
         </label>
         <div className="flex flex-wrap gap-2">
@@ -186,7 +186,7 @@ export default function StepAnalysis({ reportData, updateReportData, onNext, onB
               onClick={() => handleIssueTypeSelect(type.id)}
               className={`
                 transition-all duration-200
-                ${reportData.issueType === type.id ? 'ring-2 ring-neon-blue ring-offset-2 ring-offset-dark-bg' : 'opacity-60 hover:opacity-100'}
+                ${reportData.issueType === type.id ? 'ring-2 ring-accent ring-offset-2 ring-offset-cream' : 'opacity-80 hover:opacity-100'}
               `}
             >
               <IssueTypeTag type={type.id} />
@@ -196,15 +196,15 @@ export default function StepAnalysis({ reportData, updateReportData, onNext, onB
 
         {/* Detected labels - Hidden for Qwen as it returns a description */
           false && (
-            <div className="mt-4 pt-4 border-t border-dark-border">
-              <label className="block text-xs text-gray-500 mb-2">
+            <div className="mt-4 pt-4 border-t border-cream-muted">
+              <label className="block font-display text-xs text-slate-muted mb-2 uppercase tracking-wider">
                 Detected Objects
               </label>
               <div className="flex flex-wrap gap-2">
                 {reportData.analysisResult?.vision?.labels?.slice(0, 5).map((label, index) => (
                   <span
                     key={index}
-                    className="px-2 py-1 rounded-lg bg-dark-border text-xs text-gray-300"
+                    className="px-2 py-1 bg-cream-dark font-display text-xs text-slate"
                   >
                     {label.description} ({(label.score * 100).toFixed(0)}%)
                   </span>

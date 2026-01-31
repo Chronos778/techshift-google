@@ -8,7 +8,7 @@ import Login from './pages/Login'
 
 function App() {
   return (
-    <div className="min-h-screen bg-dark-bg">
+    <div className="min-h-screen bg-cream">
       <Navbar />
       <AnimatePresence mode="wait">
         <Routes>

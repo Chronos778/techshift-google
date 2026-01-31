@@ -20,7 +20,7 @@ export default function StatusTimeline({ status, timeline = [], className = '' }
   return (
     <div className={`relative ${className}`}>
       {/* Background track */}
-      <div className="absolute top-8 left-8 right-8 h-1 bg-dark-border rounded-full" />
+      <div className="absolute top-8 left-8 right-8 h-1 bg-cream-muted rounded-full" />
       
       {/* Progress fill */}
       <motion.div
@@ -102,8 +102,8 @@ export default function StatusTimeline({ status, timeline = [], className = '' }
                     relative w-16 h-16 rounded-full flex items-center justify-center
                     transition-all duration-500 border-2
                     ${isCompleted 
-                      ? 'bg-neon-green/20 border-neon-green text-neon-green' 
-                      : 'bg-dark-card border-dark-border text-gray-500'
+                      ? 'bg-green-100 border-green-500 text-green-600' 
+                      : 'bg-cream border-cream-muted text-slate-muted'
                     }
                   `}
                   style={isCompleted ? {
@@ -127,10 +127,10 @@ export default function StatusTimeline({ status, timeline = [], className = '' }
 
               {/* Label */}
               <div className="mt-3 text-center">
-                <p className={`text-sm font-medium ${isCompleted ? 'text-white' : 'text-gray-500'}`}>
+                <p className={`text-sm font-medium ${isCompleted ? 'text-slate' : 'text-slate-muted'}`}>
                   {stage.label}
                 </p>
-                <p className="text-xs text-gray-500 mt-0.5">
+                <p className="text-xs text-slate-muted mt-0.5">
                   {stage.description}
                 </p>
                 {timelineEvent && (

@@ -14,15 +14,15 @@ export default function LoadingSpinner({ size = 'md', text = '' }) {
         <motion.div
           animate={{ rotate: 360 }}
           transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-          className={`${sizes[size]} rounded-full border-2 border-transparent border-t-neon-blue border-r-neon-purple`}
+          className={`${sizes[size]} rounded-full border-2 border-transparent border-t-blueprint border-r-accent`}
         />
-        <div className={`absolute inset-0 ${sizes[size]} rounded-full border-2 border-dark-border`} />
+        <div className={`absolute inset-0 ${sizes[size]} rounded-full border-2 border-cream-muted`} />
       </div>
       {text && (
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="text-sm text-gray-400"
+          className="text-sm text-slate-muted"
         >
           {text}
         </motion.p>
