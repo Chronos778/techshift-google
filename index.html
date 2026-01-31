@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Smart City" />
+  <meta name="theme-color" content="#0A0A0F" />
+  <meta name="description" content="Smart City Issue Auto-Reporter - AI-powered city issue reporting" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  <title>Smart City Reporter | AI-Powered Issue Reporting</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet">
+  <style>
+    /* Prevent zoom on input focus on iOS */
+    input,
+    textarea,
+    select {
+      font-size: 16px !important;
+    }
+
+    /* Smooth scrolling */
+    html {
+      scroll-behavior: smooth;
+    }
+
+    /* Prevent tap highlight */
+    * {
+      -webkit-tap-highlight-color: transparent;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="root"></div>
+  <script type="module" src="/src/main.jsx"></script>
+
+  <!-- Suppress non-critical console errors -->
+  <script>
+    // Suppress Google Analytics network errors from localhost
+    const originalError = console.error
+    console.error = function (...args) {
+      if (args[0]?.includes?.('ERR_NAME_NOT_RESOLVED') || args[0]?.includes?.('google-analytics')) {
+        return // Silently ignore analytics errors
+      }
+      originalError.apply(console, args)
+    }
+
+    // Log Maps API issues for debugging
+    window.__GOOGLE_MAPS_ERROR__ = function (error) {
+      console.warn('Google Maps Warning:', error)
+    }
+  </script>
+</body>
+
+</html>

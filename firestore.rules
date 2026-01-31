@@ -1,0 +1,41 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+    
+    function isAdmin() {
+      return isSignedIn(); // Temporarily allow all signed-in users as admins for development
+      // For production, use: return request.auth.token.email.matches('.*@smartcity.com') || 
+      //                             request.auth.token.email in ['your-admin@email.com'];
+    }
+
+    // Issues Collection
+    match /issues/{issueId} {
+      allow read: if true; // Public read access for dashboard/landing
+      allow create: if isSignedIn(); // Only logged-in users can report
+      allow update: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid); // Admin or Owner can update
+      allow delete: if isAdmin();
+    }
+    
+    // Notifications Collection
+    match /notifications/{notificationId} {
+      allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow create: if isAdmin(); // Only backend/admin creates notifications
+    }
+    
+    // Users Collection (for Points/Badges)
+    match /users/{userId} {
+      allow read: if true; // Public for leaderboard
+      allow write: if isOwner(userId) || isAdmin();
+    }
+  }
+}
