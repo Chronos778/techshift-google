@@ -2,7 +2,8 @@
 // Add your Google account email here to access the dashboard
 const ADMIN_EMAILS = [
     "maithilpatil9@gmail.com",
-    "admin@smartcity.com"
+    "admin@smartcity.com",
+    "harshstawde@gmail.com"
 ];
 
 /**
