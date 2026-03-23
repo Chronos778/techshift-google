@@ -334,12 +334,6 @@ async function generateDescriptionCore(imageUrl, visionResults, geminiApiKeyValu
         keywords: (visionResults?.labels || []).slice(0, 3).map((l) => l.description),
     };
 }
-            ? "high"
-            : "medium",
-        confidence: success ? 0.87 : 0.6,
-        keywords: (visionResults?.labels || []).slice(0, 3).map((l) => l.description),
-    };
-}
 
 // Firestore trigger: analyze new issues and attach AI analysis
 exports.analyzeIssueRequest = onDocumentCreated({ document: "issues/{issueId}", secrets: [geminiApiKey, qwenApiKey] }, async (event) => {
