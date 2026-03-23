@@ -3,7 +3,8 @@
 const ADMIN_EMAILS = [
     "maithilpatil9@gmail.com",
     "admin@smartcity.com",
-    "harshstawde@gmail.com"
+    "harshstawde@gmail.com",
+    "satyambhagat200623@gmail.com"
 ];
 
 /**
